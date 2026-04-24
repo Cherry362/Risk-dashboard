@@ -1,0 +1,2239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Banking Regulatory Dashboard v.11 · Amex Edition · US Banking Capital Regulation · March 2026</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+/* ══════════════════════════════════════════════════════
+   BANKING REGULATORY DASHBOARD v.11  —  AMEX EDITION
+   Design Language: American Express · 2026
+══════════════════════════════════════════════════════ */
+:root {
+  /* Amex Core Palette */
+  --ax-blue:    #006FCF;
+  --ax-navy:    #003087;
+  --ax-gold:    #B5965A;
+  --ax-gold2:   #8A6E2F;
+
+  /* Surfaces */
+  --bg:         #F4F6FA;
+  --surf:       #FFFFFF;
+  --surf2:      #F7F8FB;
+  --surf3:      #FFFFFF;
+  --nav-bg:     #FFFFFF;
+  --nav-shadow: 0 1px 0 #D8DCE6, 0 2px 8px rgba(0,0,0,.06);
+
+  /* Borders */
+  --brd:        #D8DCE6;
+  --brd2:       #E8ECF2;
+
+  /* Typography */
+  --text:       #1A1F36;
+  --muted:      #697386;
+  --dim:        #9EA8B3;
+
+  /* Data Colors — adapted from Amex palette, accessible on white */
+  --teal:       #0089B2;
+  --red:        #C0392B;
+  --purple:     #5A4FCF;
+  --grn:        #00875A;
+  --blue:       #006FCF;
+  --orange:     #C67B2F;
+  --acc:        var(--ax-gold);
+
+  /* Shadows */
+  --shadow-sm:  0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:  0 4px 12px rgba(0,0,0,.08), 0 2px 4px rgba(0,0,0,.04);
+  --shadow-lg:  0 8px 24px rgba(0,0,0,.10), 0 4px 8px rgba(0,0,0,.04);
+
+  /* Radius */
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--brd2); }
+::-webkit-scrollbar-thumb { background: #B8C0CC; border-radius: 3px; }
+
+/* ══════════════════════════════════════════════
+   TOP NAV — Amex white header with blue accents
+══════════════════════════════════════════════ */
+.top-nav {
+  background: var(--nav-bg);
+  box-shadow: var(--nav-shadow);
+  padding: 0 40px;
+  display: flex;
+  align-items: stretch;
+  position: sticky;
+  top: 0;
+  z-index: 300;
+  height: 52px;
+}
+.nav-brand {
+  display: flex;
+  align-items: center;
+  padding: 0 24px 0 0;
+  margin-right: 8px;
+  border-right: 1px solid var(--brd);
+  gap: 10px;
+  white-space: nowrap;
+}
+.nav-logo-box {
+  width: 32px; height: 20px;
+  background: var(--ax-blue);
+  border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.nav-logo-box svg { width: 20px; height: 12px; }
+.nav-brand-text {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .3px;
+  color: var(--text);
+  line-height: 1.2;
+}
+.nav-brand-sub {
+  font-size: 9px;
+  font-weight: 400;
+  color: var(--muted);
+  display: block;
+  letter-spacing: .2px;
+}
+.nav-tab {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: .2px;
+  padding: 0 18px;
+  cursor: pointer;
+  color: var(--muted);
+  border-bottom: 2px solid transparent;
+  transition: color .15s, border-color .15s;
+  white-space: nowrap;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  margin-bottom: -1px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+}
+.nav-tab:hover { color: var(--text); }
+.nav-tab.active { color: var(--ax-blue); border-bottom-color: var(--ax-blue); font-weight: 600; }
+.nav-date {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--dim);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.nav-date::before {
+  content: '';
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--grn);
+}
+
+/* ── PAGE WRAPPERS ── */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ══════════════════════════════════════════════
+   MASTHEAD — Amex deep navy gradient hero
+══════════════════════════════════════════════ */
+.masthead {
+  background: linear-gradient(135deg, var(--ax-navy) 0%, #004BA0 60%, #006FCF 100%);
+  padding: 40px 40px 32px;
+  position: relative;
+  overflow: hidden;
+}
+.masthead::before {
+  content: '';
+  position: absolute;
+  top: -100px; right: -100px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(255,255,255,.04) 0%, transparent 65%);
+  pointer-events: none;
+}
+.masthead::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: rgba(255,255,255,.12);
+}
+.mtag {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.6);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mtag::before {
+  content: '';
+  display: inline-block;
+  width: 16px; height: 2px;
+  background: var(--ax-gold);
+  border-radius: 1px;
+}
+.masthead h1 {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #FFFFFF;
+  max-width: 700px;
+  margin-bottom: 10px;
+  letter-spacing: -.3px;
+}
+.msub {
+  color: rgba(255,255,255,.72);
+  font-size: 13px;
+  max-width: 780px;
+  line-height: 1.65;
+}
+.thesis {
+  margin-top: 16px;
+  padding: 14px 18px;
+  border-left: 3px solid var(--ax-gold);
+  background: rgba(255,255,255,.08);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  max-width: 860px;
+  backdrop-filter: blur(4px);
+}
+.thesis p { font-size: 13px; color: rgba(255,255,255,.88); line-height: 1.7; }
+.thesis strong { color: #FFD580; font-weight: 600; }
+
+/* ══════════════════════════════════════════════
+   KPI BAND
+══════════════════════════════════════════════ */
+.kpi-band {
+  padding: 16px 40px;
+  background: var(--surf);
+  border-bottom: 1px solid var(--brd);
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  box-shadow: var(--shadow-sm);
+}
+.kpi {
+  flex: 1;
+  min-width: 130px;
+  background: var(--surf2);
+  border: 1px solid var(--brd);
+  border-radius: var(--r-md);
+  padding: 12px 16px;
+  transition: box-shadow .15s, transform .15s;
+}
+.kpi:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+.kpi-l {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 5px;
+  line-height: 1.4;
+}
+.kpi-v {
+  font-family: 'Georgia', serif;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 3px;
+}
+.kpi-s { font-size: 10px; color: var(--dim); line-height: 1.4; }
+
+/* ══════════════════════════════════════════════
+   SECTION LABEL
+══════════════════════════════════════════════ */
+.slabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ax-blue);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.slabel::after { content: ''; flex: 1; height: 1px; background: var(--brd); }
+
+/* ══════════════════════════════════════════════
+   PAGE 1: NEWS ANALYSIS
+══════════════════════════════════════════════ */
+.news-ctrl {
+  padding: 12px 40px;
+  background: var(--surf);
+  border-bottom: 1px solid var(--brd);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 52px;
+  z-index: 200;
+  box-shadow: var(--shadow-sm);
+}
+.cb {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 5px 13px;
+  border-radius: 20px;
+  border: 1.5px solid var(--brd);
+  cursor: pointer;
+  background: var(--surf);
+  color: var(--muted);
+  transition: all .15s;
+  white-space: nowrap;
+}
+.cb:hover { color: var(--text); border-color: #B0B8C8; background: var(--surf2); }
+.cb.on {
+  background: rgba(0,111,207,.08);
+  color: var(--ax-blue);
+  border-color: rgba(0,111,207,.4);
+  font-weight: 600;
+}
+.cb.sec-on {
+  background: var(--ax-blue);
+  color: #FFFFFF;
+  border-color: var(--ax-blue);
+  font-weight: 600;
+}
+.cl {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-right: 4px;
+  white-space: nowrap;
+}
+.dv { width: 1px; height: 20px; background: var(--brd); margin: 0 4px; flex-shrink: 0; }
+.srch {
+  font-size: 12px;
+  background: var(--surf2);
+  border: 1.5px solid var(--brd);
+  border-radius: 20px;
+  color: var(--text);
+  padding: 5px 14px;
+  width: 200px;
+  outline: none;
+  margin-left: auto;
+  transition: border-color .15s, box-shadow .15s;
+}
+.srch:focus { border-color: var(--ax-blue); box-shadow: 0 0 0 3px rgba(0,111,207,.1); }
+.srch::placeholder { color: var(--dim); }
+#n-rc { font-size: 11px; color: var(--dim); white-space: nowrap; min-width: 50px; text-align: right; }
+
+.news-grid {
+  padding: 20px 40px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(460px, 1fr));
+  gap: 16px;
+}
+.news-card {
+  background: var(--surf);
+  border: 1px solid var(--brd);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  border-top: 3px solid;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow .2s, transform .2s;
+}
+.news-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.news-card.hidden { display: none; }
+.nc-head { padding: 16px 18px 12px; cursor: pointer; }
+.nc-type-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.nc-type {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 3px;
+  border: 1px solid;
+}
+.nc-warn {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--red);
+  border: 1px solid rgba(192,57,43,.3);
+  padding: 3px 8px;
+  border-radius: 3px;
+  background: rgba(192,57,43,.06);
+}
+.nc-title { font-size: 13.5px; font-weight: 700; color: var(--text); line-height: 1.4; margin-bottom: 4px; }
+.nc-source { font-size: 11px; color: var(--dim); }
+.nc-impact-row { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+.nc-imp-lbl { font-size: 9px; color: var(--dim); min-width: 75px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; }
+.nc-imp-track { flex: 1; background: var(--brd2); border-radius: 4px; height: 5px; overflow: hidden; }
+.nc-imp-fill { height: 100%; border-radius: 4px; }
+.nc-imp-val { font-size: 10px; font-weight: 700; min-width: 30px; }
+.nc-body { max-height: 0; overflow: hidden; transition: max-height .3s ease; }
+.nc-body.open { max-height: 600px; }
+.nc-summary { padding: 0 18px 16px; font-size: 12.5px; color: var(--muted); line-height: 1.8; border-top: 1px solid var(--brd2); padding-top: 14px; }
+.nc-summary strong { color: var(--text); font-weight: 600; }
+.nc-summary em { color: var(--ax-blue); font-style: normal; font-weight: 500; }
+.nc-foot { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+.nc-link {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ax-blue);
+  text-decoration: none;
+  border: 1px solid rgba(0,111,207,.3);
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(0,111,207,.04);
+  transition: background .15s;
+}
+.nc-link:hover { background: rgba(0,111,207,.1); }
+.nc-author { font-size: 10px; color: var(--dim); }
+
+.news-section-hdr { padding: 20px 40px 0; display: flex; align-items: baseline; gap: 12px; }
+.nsh-title { font-family: 'Georgia', serif; font-size: 18px; font-weight: 700; color: var(--text); }
+.nsh-ct {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ax-blue);
+  border: 1px solid rgba(0,111,207,.3);
+  border-radius: 12px;
+  padding: 2px 10px;
+  background: rgba(0,111,207,.06);
+}
+.nsh-desc { font-size: 12px; color: var(--muted); line-height: 1.6; max-width: 860px; padding: 4px 40px 0; }
+
+/* ══════════════════════════════════════════════
+   PAGE 2: CHARTS
+══════════════════════════════════════════════ */
+.chart-nav {
+  padding: 12px 40px;
+  background: var(--surf);
+  border-bottom: 1px solid var(--brd);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 52px;
+  z-index: 200;
+  box-shadow: var(--shadow-sm);
+}
+.chart-panels { padding: 24px 40px; }
+.chart-panel { display: none; }
+.chart-panel.active { display: block; }
+.chart-card {
+  background: var(--surf);
+  border: 1px solid var(--brd);
+  border-radius: var(--r-lg);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+.cc-title { font-weight: 700; color: var(--text); font-size: 13px; margin-bottom: 4px; }
+.cc-sub { font-size: 11px; color: var(--dim); margin-bottom: 16px; line-height: 1.55; }
+.chart-grid-2 { display: grid; grid-template-columns: 3fr 2fr; gap: 16px; margin-bottom: 16px; }
+.chart-grid-2-eq { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.chart-legend { display: flex; gap: 14px; margin-top: 12px; flex-wrap: wrap; }
+.cl-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+.cl-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+canvas { max-height: 260px; }
+canvas.tall { max-height: 320px; }
+.agency-badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 4px;
+  border: 1px solid;
+  display: inline-block;
+  margin-bottom: 14px;
+}
+.panel-title { font-family: 'Georgia', serif; font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 5px; }
+.panel-sub { font-size: 12px; color: var(--muted); max-width: 720px; line-height: 1.6; margin-bottom: 16px; }
+.net-strip { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.net-box {
+  flex: 1;
+  min-width: 80px;
+  background: var(--surf);
+  border: 1px solid var(--brd);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+  border-left: 3px solid;
+  box-shadow: var(--shadow-sm);
+}
+.net-year { font-size: 10px; font-weight: 700; margin-bottom: 2px; }
+.net-lbl { font-size: 9px; color: var(--dim); }
+.net-val { font-size: 11px; font-weight: 700; margin-top: 3px; }
+.view-btns { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+.vbtn {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 5px 13px;
+  border-radius: 20px;
+  border: 1.5px solid var(--brd);
+  cursor: pointer;
+  background: var(--surf);
+  color: var(--muted);
+  transition: all .15s;
+}
+.vbtn:hover { color: var(--text); border-color: #B0B8C8; }
+.vbtn.active {
+  background: rgba(0,136,178,.08);
+  color: var(--teal);
+  border-color: rgba(0,136,178,.4);
+  font-weight: 600;
+}
+.regime-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 12px; }
+.regime-table th {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--dim);
+  padding: 8px 12px;
+  background: var(--surf2);
+  border-bottom: 1px solid var(--brd);
+  text-align: left;
+}
+.regime-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--brd2);
+  color: var(--muted);
+  vertical-align: top;
+  line-height: 1.45;
+  font-size: 12px;
+}
+.regime-table td:first-child { font-size: 11px; font-weight: 700; white-space: nowrap; color: var(--text); }
+.regime-table tr:last-child td { border-bottom: none; }
+.rb {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 3px;
+  border: 1px solid;
+  display: inline-block;
+}
+.rb-add { border-color: rgba(0,135,90,.3); color: var(--grn); background: rgba(0,135,90,.06); }
+.rb-dreg { border-color: rgba(181,150,90,.4); color: var(--ax-gold2); background: rgba(181,150,90,.08); }
+.fn { font-size: 10px; color: var(--dim); line-height: 1.6; margin-top: 12px; font-style: italic; }
+
+/* ══════════════════════════════════════════════
+   PAGE 3: REGULATORY ANALYSIS
+══════════════════════════════════════════════ */
+.ra-ctrl {
+  padding: 12px 40px;
+  background: var(--surf);
+  border-bottom: 1px solid var(--brd);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 52px;
+  z-index: 200;
+  box-shadow: var(--shadow-sm);
+}
+#ra-rc { font-size: 11px; color: var(--dim); white-space: nowrap; min-width: 50px; text-align: right; }
+.sec-hdr { padding: 20px 40px 0; }
+.sec-title-row { display: flex; align-items: baseline; gap: 12px; margin-bottom: 5px; }
+.sec-title { font-family: 'Georgia', serif; font-size: 18px; font-weight: 700; color: var(--text); }
+.sec-ct {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ax-blue);
+  border: 1px solid rgba(0,111,207,.3);
+  border-radius: 12px;
+  padding: 2px 10px;
+  background: rgba(0,111,207,.06);
+}
+.sec-desc { font-size: 12px; color: var(--muted); line-height: 1.65; max-width: 860px; margin-bottom: 12px; padding: 0 40px; }
+.sec-rule { height: 1px; background: var(--brd); margin: 0 40px 12px; }
+.row-list { padding: 0 40px; }
+.entry {
+  border: 1px solid var(--brd);
+  border-left: 3px solid;
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  margin-bottom: 6px;
+  background: var(--surf);
+  overflow: hidden;
+  transition: box-shadow .15s;
+  box-shadow: var(--shadow-sm);
+}
+.entry:hover { box-shadow: var(--shadow-md); }
+.entry.hidden { display: none; }
+.entry-line { display: flex; align-items: center; cursor: pointer; min-height: 44px; }
+.e-idx {
+  width: 46px;
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--dim);
+  text-align: center;
+  background: var(--surf2);
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid var(--brd);
+}
+.e-dir { width: 24px; flex-shrink: 0; text-align: center; font-size: 13px; }
+.e-main { flex: 1; padding: 9px 12px 9px 6px; min-width: 0; }
+.e-title { font-size: 12.5px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.4; }
+.e-meta { font-size: 10px; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+.e-badges { display: flex; gap: 4px; flex-shrink: 0; padding: 0 10px 0 4px; align-items: center; flex-wrap: nowrap; }
+.bd {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+.bd-article  { border-color:rgba(90,79,207,.28); color:var(--purple); background:rgba(90,79,207,.06); }
+.bd-commentary { border-color:rgba(0,135,90,.28); color:var(--grn); background:rgba(0,135,90,.05); }
+.bd-npr      { border-color:rgba(181,150,90,.35); color:var(--ax-gold2); background:rgba(181,150,90,.07); }
+.bd-add      { border-color:rgba(0,136,178,.28); color:var(--teal); background:rgba(0,136,178,.05); }
+.bd-dereg    { border-color:rgba(181,150,90,.35); color:var(--ax-gold2); background:rgba(181,150,90,.07); }
+.bd-warn     { border-color:rgba(192,57,43,.35); color:var(--red); background:rgba(192,57,43,.06); }
+.bd-capital  { border-color:rgba(0,111,207,.28); color:var(--ax-blue); background:rgba(0,111,207,.05); }
+.bd-final    { border-color:rgba(0,135,90,.28); color:var(--grn); background:rgba(0,135,90,.05); }
+.bd-pending  { border-color:rgba(181,150,90,.35); color:var(--ax-gold2); background:rgba(181,150,90,.06); }
+.bd-withdrawn{ border-color:rgba(192,57,43,.28); color:var(--red); background:rgba(192,57,43,.05); }
+.bd-occ  { border-color:rgba(0,136,178,.25); color:var(--teal); background:rgba(0,136,178,.04); }
+.bd-fed  { border-color:rgba(90,79,207,.25); color:var(--purple); background:rgba(90,79,207,.04); }
+.bd-fdic { border-color:rgba(0,135,90,.25); color:var(--grn); background:rgba(0,135,90,.04); }
+.bd-joint{ border-color:rgba(198,123,47,.25); color:var(--orange); background:rgba(198,123,47,.04); }
+.e-impact { width: 95px; flex-shrink: 0; padding: 0 10px 0 4px; display: flex; align-items: center; gap: 6px; }
+.imp-track { flex: 1; background: var(--brd2); border-radius: 3px; height: 4px; overflow: hidden; }
+.imp-fill { height: 100%; border-radius: 3px; }
+.imp-lbl { font-size: 9px; font-weight: 700; min-width: 28px; text-align: right; }
+.e-toggle {
+  width: 30px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surf2);
+  border-left: 1px solid var(--brd);
+  align-self: stretch;
+  color: var(--dim);
+  font-size: 15px;
+  transition: transform .2s, background .15s;
+  user-select: none;
+}
+.e-toggle:hover { background: var(--brd2); }
+.e-toggle.open { transform: rotate(90deg); }
+.e-expand { display: none; padding: 14px 18px 14px 72px; background: var(--surf2); border-top: 1px solid var(--brd2); }
+.e-expand.show { display: block; }
+.e-summary { font-size: 12.5px; color: var(--muted); line-height: 1.8; max-width: 960px; }
+.e-summary strong { color: var(--text); font-weight: 600; }
+.e-summary em { color: var(--ax-blue); font-style: normal; font-weight: 500; }
+.e-foot { display: flex; gap: 8px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+.e-link {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ax-blue);
+  text-decoration: none;
+  border: 1px solid rgba(0,111,207,.3);
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(0,111,207,.04);
+  transition: background .15s;
+}
+.e-link:hover { background: rgba(0,111,207,.1); }
+.e-warn-badge {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .8px;
+  color: var(--red);
+  border: 1px solid rgba(192,57,43,.3);
+  padding: 3px 9px;
+  border-radius: 3px;
+  background: rgba(192,57,43,.06);
+}
+.e-author { font-size: 10px; color: var(--dim); }
+.agency-divider { display: flex; align-items: center; gap: 14px; padding: 16px 40px 8px; }
+.adiv-badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 4px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+.adiv-line { flex: 1; height: 1px; background: var(--brd2); }
+.adiv-desc { font-size: 11px; color: var(--dim); }
+.empty-state { padding: 24px 40px; font-size: 12px; color: var(--dim); display: none; }
+.fn-bar { padding: 8px 40px 18px; font-size: 10px; color: var(--dim); line-height: 1.65; border-top: 1px solid var(--brd2); font-style: italic; }
+.footer { padding: 14px 40px; border-top: 1px solid var(--brd); font-size: 11px; color: var(--dim); line-height: 1.9; background: var(--surf); }
+
+/* ══════════════════════════════════════════════
+   PAGE 4: REGULATORY TIMELINE
+══════════════════════════════════════════════ */
+.sec-wrap { padding: 28px 40px 0; }
+.viz-num {
+  font-family: 'Georgia', serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: rgba(0,111,207,.12);
+  margin-right: 4px;
+  line-height: 1;
+}
+.chart-outer { padding: 0 40px 28px; }
+.cc-border-teal  { border-top: 3px solid var(--teal); }
+.cc-border-acc   { border-top: 3px solid var(--ax-gold); }
+.cc-border-purple{ border-top: 3px solid var(--purple); }
+.cc-border-red   { border-top: 3px solid var(--red); }
+.cc-title { font-family: 'Georgia', serif; font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 5px; }
+.cc-sub { font-size: 11px; color: var(--dim); line-height: 1.6; max-width: 800px; margin-bottom: 18px; }
+.leg { display: flex; gap: 16px; margin-top: 14px; flex-wrap: wrap; }
+.li { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+.ld { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.cbtn {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 5px 13px;
+  border-radius: 20px;
+  border: 1.5px solid var(--brd);
+  cursor: pointer;
+  background: var(--surf);
+  color: var(--muted);
+  transition: all .15s;
+}
+.cbtn:hover { color: var(--text); border-color: #B0B8C8; }
+.cbtn.on {
+  background: rgba(0,111,207,.08);
+  color: var(--ax-blue);
+  border-color: rgba(0,111,207,.4);
+  font-weight: 600;
+}
+.ctrls { display: flex; gap: 6px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+.clbl {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-right: 4px;
+}
+.era-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px; }
+.era-chip {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+.ev-ticker {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  padding: 12px 0 8px;
+  margin-top: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--brd) transparent;
+}
+.ev-chip {
+  flex-shrink: 0;
+  font-size: 10px;
+  padding: 5px 12px 5px 10px;
+  border-left: 3px solid;
+  background: var(--surf2);
+  margin-right: 6px;
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  white-space: nowrap;
+  line-height: 1.5;
+  border-top: 1px solid var(--brd);
+  border-bottom: 1px solid var(--brd);
+  border-right: 1px solid var(--brd);
+}
+.ev-yr { font-weight: 700; display: block; font-size: 11px; }
+.ev-lb { color: var(--dim); font-size: 10px; }
+.page-div { height: 1px; background: var(--brd); margin: 8px 40px 0; }
+
+/* ══════════════════════════════════════════════
+   AMEX-STYLE DIVIDER / UTILITY
+══════════════════════════════════════════════ */
+.ax-divider {
+  height: 3px;
+  background: linear-gradient(90deg, var(--ax-blue) 0%, #0089C8 50%, #00A8E0 100%);
+  border-radius: 0 0 2px 2px;
+}
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .top-nav, .masthead, .kpi-band, .news-ctrl, .news-grid,
+  .chart-nav, .chart-panels, .ra-ctrl, .sec-hdr, .sec-desc,
+  .sec-rule, .row-list, .agency-divider, .empty-state,
+  .fn-bar, .footer, .sec-wrap, .chart-outer, .page-div {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .news-grid { grid-template-columns: 1fr; }
+  .chart-grid-2, .chart-grid-2-eq { grid-template-columns: 1fr; }
+  .e-badges, .e-impact { display: none; }
+  .nav-brand { display: none; }
+  .top-nav { padding: 0 16px; }
+}
+</style>
+</head>
+<body>
+
+
+<!-- ══════════ TOP NAV ══════════ -->
+<nav class="top-nav">
+  <div class="nav-brand">
+    <div class="nav-logo-box">
+      <svg viewBox="0 0 40 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="40" height="24" rx="2" fill="#006FCF"/>
+        <text x="20" y="17" font-family="Arial" font-size="11" font-weight="900" fill="white" text-anchor="middle">AMEX</text>
+      </svg>
+    </div>
+    <div>
+      <span class="nav-brand-text">Banking Regulatory Dashboard</span>
+      <span class="nav-brand-sub">v.11 · Amex Edition · March 2026</span>
+    </div>
+  </div>
+  <button class="nav-tab active" onclick="showPage('news',this)">News Analysis</button>
+  <button class="nav-tab" onclick="showPage('charts',this)">Charts &amp; Graphs</button>
+  <button class="nav-tab" onclick="showPage('analysis',this)">Regulatory Analysis</button>
+  <button class="nav-tab" onclick="showPage('timeline',this)">Regulatory Timeline</button>
+  <div class="nav-date">March 22, 2026</div>
+</nav>
+<div class="ax-divider"></div>
+
+<!-- ╔══════════════════════════════════════════════╗
+     ║  PAGE 1 — NEWS ANALYSIS                      ║
+     ╚══════════════════════════════════════════════╝ -->
+<div class="page active" id="page-news">
+
+  <div class="masthead">
+    <div class="mtag">News Analysis · Articles &amp; Commentary · US Banking Regulation</div>
+    <h1>News Analysis:<br>Articles, Reports &amp; Commentary on the Capital Cycle</h1>
+    <div class="msub">10 curated sources — academic papers, policy reports, and practitioner commentary — each analyzed for capital impact. Click any card to expand the full capital-focused summary. Filter by type, crash-warning status, or search across all text.</div>
+    <div class="thesis"><p>These sources collectively establish <strong>why the current deregulatory environment is historically anomalous</strong>: for the first time in 40 years, the policy response to a banking crisis (SVB 2023) is further deregulation rather than capital rebuilding — a pattern that academic literature spanning 300 years has never seen resolve without a subsequent market event.</p></div>
+  </div>
+
+  <div class="kpi-band">
+    <div class="kpi"><div class="kpi-l">Total Sources</div><div class="kpi-v" style="color:var(--purple)">10</div><div class="kpi-s">Academic · Policy · Practitioner<br>2017–2025</div></div>
+    <div class="kpi"><div class="kpi-l">Research Articles</div><div class="kpi-v" style="color:var(--blue)">6</div><div class="kpi-s">Peer-reviewed &amp; policy papers<br>with data &amp; charts</div></div>
+    <div class="kpi"><div class="kpi-l">Commentary Pieces</div><div class="kpi-v" style="color:var(--grn)">4</div><div class="kpi-s">Practitioner &amp; policy analysis<br>focused on current environment</div></div>
+    <div class="kpi"><div class="kpi-l">Crash Warnings</div><div class="kpi-v" style="color:var(--red)">4</div><div class="kpi-s">Explicitly link 2025 deregulation<br>to near-term crisis risk</div></div>
+    <div class="kpi"><div class="kpi-l">Historical Span</div><div class="kpi-v" style="color:var(--acc)">300yr</div><div class="kpi-s">Earliest source: 1825 crisis<br>Most recent: Sept 2025</div></div>
+    <div class="kpi"><div class="kpi-l">Top Capital Impact</div><div class="kpi-v" style="color:var(--red)">9.5/10</div><div class="kpi-s">Corporate Compliance Insights<br>S&amp;L · 2008 · 2023 cycle analysis</div></div>
+  </div>
+
+  <div class="news-ctrl">
+    <span class="cl">Type:</span>
+    <button class="cb sec-on" id="nt-all" onclick="nFilter('all',this)">All (10)</button>
+    <button class="cb" id="nt-art" onclick="nFilter('article',this)">Research Articles (6)</button>
+    <button class="cb" id="nt-com" onclick="nFilter('commentary',this)">Commentary (4)</button>
+    <div class="dv"></div>
+    <button class="cb" id="nt-warn" onclick="nWarn(this)">⚠ Crash Warnings Only</button>
+    <input class="srch" type="text" id="n-search" placeholder="Search titles &amp; summaries…" oninput="nSearch(this.value)">
+    <span id="n-rc">10 items</span>
+  </div>
+
+  <div id="news-cards-articles">
+    <div class="news-section-hdr"><span class="nsh-title">Research Articles</span><span class="nsh-ct">6 sources</span></div>
+    <div class="nsh-desc">Academic papers and data-driven policy research. Sorted by capital impact severity.</div>
+    <div class="news-grid" id="ng-article"></div>
+  </div>
+
+  <div id="news-cards-commentary" style="margin-top:8px">
+    <div class="news-section-hdr"><span class="nsh-title">Commentary &amp; Practitioner Analysis</span><span class="nsh-ct">4 sources</span></div>
+    <div class="nsh-desc">Expert commentary, GRC practitioner analysis, and policy advocacy focused on the current 2025 environment.</div>
+    <div class="news-grid" id="ng-commentary"></div>
+  </div>
+
+  <div class="footer">Articles compiled March 22, 2026 · Sources: Corporate Compliance Insights · CEPR VoxEU · Better Markets · ScienceDirect · FDIC Working Papers · Governance Intelligence · HISTORY.com · Center for American Progress · Bankrate · Not investment or legal advice</div>
+</div><!-- /page-news -->
+
+
+<!-- ╔══════════════════════════════════════════════╗
+     ║  PAGE 2 — CHARTS & GRAPHS                    ║
+     ╚══════════════════════════════════════════════╝ -->
+<div class="page" id="page-charts">
+
+  <div class="masthead">
+    <div class="mtag">Charts &amp; Graphs · NPR Volume Analysis · OCC · Federal Reserve · FDIC · 2015–2025</div>
+    <h1>NPR Volume &amp; Velocity:<br>OCC, Federal Reserve &amp; FDIC — Additive vs. Deregulatory</h1>
+    <div class="msub">Per-agency and combined views of Notices of Proposed Rulemaking classified by regulatory direction (2015–2025). Four chart sets: OCC individually, Federal Reserve individually, FDIC individually, and all three on the same axes for direct comparison.</div>
+  </div>
+
+  <div class="kpi-band">
+    <div class="kpi"><div class="kpi-l">Total Additive NPRs<br>2015–2025</div><div class="kpi-v" style="color:var(--blue)">253</div><div class="kpi-s">Fed: 94 · FDIC: 82 · OCC: 77</div></div>
+    <div class="kpi"><div class="kpi-l">Total Deregulatory NPRs<br>2015–2025</div><div class="kpi-v" style="color:var(--acc)">127</div><div class="kpi-s">Fed: 40 · FDIC: 46 · OCC: 41</div></div>
+    <div class="kpi"><div class="kpi-l">2025 Deregulatory<br>(all agencies)</div><div class="kpi-v" style="color:var(--red)">24</div><div class="kpi-s">vs. 6 additive. Ratio 4:1.<br>Highest single-year dereg count</div></div>
+    <div class="kpi"><div class="kpi-l">2023 Post-SVB<br>Additive Peak</div><div class="kpi-v" style="color:var(--teal)">44</div><div class="kpi-s">Regulatory supercycle. Fed led<br>with Basel III Endgame package</div></div>
+    <div class="kpi"><div class="kpi-l">Sharpest Agency<br>Pivot 2024→2025</div><div class="kpi-v" style="color:var(--acc)">OCC</div><div class="kpi-s">From 11 add / 2 dereg (2024)<br>to 2 add / 9 dereg (2025)</div></div>
+    <div class="kpi"><div class="kpi-l">NPR→Final Velocity<br>Trump 2.0 est.</div><div class="kpi-v" style="color:var(--grn)">10mo</div><div class="kpi-s">vs. 28mo Biden era.<br>Fastest deregulatory pace on record</div></div>
+  </div>
+
+  <nav class="chart-nav">
+    <span class="cl" style="color:var(--acc);margin-right:6px">Agency View:</span>
+    <button class="cb sec-on" id="cp-occ" onclick="showChartPanel('occ',this)">OCC</button>
+    <button class="cb" id="cp-fed" onclick="showChartPanel('fed',this)">Federal Reserve</button>
+    <button class="cb" id="cp-fdic" onclick="showChartPanel('fdic',this)">FDIC</button>
+    <button class="cb" id="cp-all" onclick="showChartPanel('all',this)">All Three Together</button>
+  </nav>
+
+  <div class="chart-panels">
+
+    <!-- OCC PANEL -->
+    <div class="chart-panel active" id="cpanel-occ">
+      <span class="agency-badge" style="border-color:rgba(126,184,181,.4);color:var(--teal);background:rgba(126,184,181,.06)">OCC — Office of the Comptroller of the Currency · National Banks &amp; Federal Savings Associations</span>
+      <div class="panel-title">OCC: Regulatory NPRs 2015–2025</div>
+      <div class="panel-sub">The OCC pivots most sharply at each presidential transition — the Comptroller is a direct presidential appointment. 2025 shows its most extreme deregulatory posture in the dataset, with 9 deregulatory vs. 2 additive NPRs.</div>
+      <div class="net-strip" id="occ-net"></div>
+      <div class="chart-grid-2">
+        <div class="chart-card">
+          <div class="cc-title">OCC NPR Volume — Additive vs. Deregulatory (2015–2025)</div>
+          <div class="cc-sub">Teal = additive/tightening. Amber = deregulatory/removal. Faded = administration transition years (2017, 2021).</div>
+          <canvas id="occ-bar" class="tall"></canvas>
+          <div class="chart-legend">
+            <div class="cl-item"><div class="cl-dot" style="background:rgba(126,184,181,.8)"></div>Additive</div>
+            <div class="cl-item"><div class="cl-dot" style="background:rgba(201,168,76,.8)"></div>Deregulatory</div>
+          </div>
+          <p class="fn">Sources: OCC Proposed Issuances archive, OCC Annual Reports 2015–2025, Federal Register, Freshfields 2025 Regulatory Roundup. Interagency NPRs counted per OCC participation.</p>
+        </div>
+        <div class="chart-card">
+          <div class="cc-title">OCC Direction Ratio (Additive:Deregulatory)</div>
+          <div class="cc-sub">Above 1.0 = net tightening. Below 1.0 = net deregulatory. Point color shifts at the 1.0 threshold.</div>
+          <canvas id="occ-ratio" style="max-height:180px"></canvas>
+          <div class="cc-title" style="margin-top:18px">OCC Highlights by Era</div>
+          <table class="regime-table">
+            <thead><tr><th>Era</th><th>Direction</th><th>Key OCC Actions</th></tr></thead>
+            <tbody>
+              <tr><td>2015–16</td><td><span class="rb rb-add">↑ Additive</span></td><td>Dodd-Frank implementation, stress test rules, recovery planning for midsize banks, fair lending enforcement</td></tr>
+              <tr><td>2017–20</td><td><span class="rb rb-dreg">↓ Deregulatory</span></td><td>Fintech charter, CRA ANPR (looser), BSA burden reduction, Volcker simplification, activities modernization, true lender rule</td></tr>
+              <tr><td>2021–24</td><td><span class="rb rb-add">↑ Additive</span></td><td>CRA final rule (joint), Basel III Endgame (joint), capital tailoring, merger scrutiny, crypto guidance restrictions</td></tr>
+              <tr><td>2025</td><td><span class="rb rb-dreg">↓ Deregulatory</span></td><td>Heightened standards $50B→$700B, community bank $10B→$30B, reputation risk ban, leveraged lending withdrawal, preemption NPRs</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- FED PANEL -->
+    <div class="chart-panel" id="cpanel-fed">
+      <span class="agency-badge" style="border-color:rgba(139,159,206,.4);color:var(--purple);background:rgba(139,159,206,.06)">FRB — Federal Reserve Board of Governors · Bank Holding Companies, State Member Banks, Foreign Banks</span>
+      <div class="panel-title">Federal Reserve: Regulatory NPRs 2015–2025</div>
+      <div class="panel-sub">The Fed leads interagency capital rulemaking and produces the highest NPR volume of the three agencies. The 2023 post-SVB supercycle peak of 17 additive NPRs is the highest single-agency single-year count in the dataset. In 2025, the Fed cut supervision staff 30% — a deregulatory act not captured in formal NPR counts.</div>
+      <div class="net-strip" id="fed-net"></div>
+      <div class="chart-grid-2">
+        <div class="chart-card">
+          <div class="cc-title">Federal Reserve NPR Volume — Additive vs. Deregulatory (2015–2025)</div>
+          <div class="cc-sub">Purple = additive. Red = deregulatory. The 2023 spike reflects the Basel III Endgame, GSIB surcharge, LTD, and stress test reform NPRs issued in rapid succession post-SVB.</div>
+          <canvas id="fed-bar" class="tall"></canvas>
+          <div class="chart-legend">
+            <div class="cl-item"><div class="cl-dot" style="background:rgba(139,159,206,.8)"></div>Additive</div>
+            <div class="cl-item"><div class="cl-dot" style="background:rgba(208,72,56,.8)"></div>Deregulatory</div>
+          </div>
+          <p class="fn">Sources: Fed Supervision &amp; Regulation Reports 2015–2025, Federal Register, Gibson Dunn Monthly Bank Regulatory Reports, Freshfields 2025 Roundup.</p>
+        </div>
+        <div class="chart-card">
+          <div class="cc-title">Fed Direction Ratio</div>
+          <div class="cc-sub">The Fed's 2023 ratio of 17:1 is the highest single-agency single-year tightening peak in the dataset. The 2025 ratio of 0.38 approaches the 2018–19 deregulatory trough that preceded SVB.</div>
+          <canvas id="fed-ratio" style="max-height:180px"></canvas>
+          <div class="cc-title" style="margin-top:18px">Fed Highlights by Era</div>
+          <table class="regime-table">
+            <thead><tr><th>Era</th><th>Direction</th><th>Key Fed Actions</th></tr></thead>
+            <tbody>
+              <tr><td>2015–16</td><td><span class="rb rb-add">↑ Additive</span></td><td>LCR finalization, TLAC NPR, enhanced prudential standards for large banks, GSIB surcharge NPR, stress test enhancement</td></tr>
+              <tr><td>2017–20</td><td><span class="rb rb-dreg">↓ Deregulatory</span></td><td>2019 tailoring rules, Volcker Rule simplification, SLR exclusion (2020), stress test streamlining, CCAR reform</td></tr>
+              <tr><td>2021–24</td><td><span class="rb rb-add">↑ Additive</span></td><td>Climate risk ANPR, Basel III Endgame (2023), GSIB surcharge reproposal, LTD NPR, CRA modernization, cyber reporting</td></tr>
+              <tr><td>2025</td><td><span class="rb rb-dreg">↓ Deregulatory</span></td><td>eSLR modification (final), CBLR reduction NPR, CRA rescission, stress test transparency NPR, climate guidance rescission, 30% supervision staff cut</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- FDIC PANEL -->
+    <div class="chart-panel" id="cpanel-fdic">
+      <span class="agency-badge" style="border-color:rgba(158,184,126,.4);color:var(--grn);background:rgba(158,184,126,.06)">FDIC — Federal Deposit Insurance Corporation · State Non-Member Banks &amp; Savings Associations</span>
+      <div class="panel-title">FDIC: Regulatory NPRs 2015–2025</div>
+      <div class="panel-sub">The FDIC showed the most pronounced post-SVB regulatory supercycle response in 2023, reaching a 13:1 additive:deregulatory ratio — the highest single-year tightening extreme of any agency in the dataset. Under Trump 2.0's Travis Hill chairmanship, it pivoted aggressively on reputation risk and supervisory standards in 2025.</div>
+      <div class="net-strip" id="fdic-net"></div>
+      <div class="chart-grid-2">
+        <div class="chart-card">
+          <div class="cc-title">FDIC NPR Volume — Additive vs. Deregulatory (2015–2025)</div>
+          <div class="cc-sub">Green = additive. Orange = deregulatory. The FDIC's 2023–24 two-year additive peak is the strongest sustained tightening period in the dataset; 2025 shows the sharpest single-year reversal.</div>
+          <canvas id="fdic-bar" class="tall"></canvas>
+          <div class="chart-legend">
+            <div class="cl-item"><div class="cl-dot" style="background:rgba(158,184,126,.8)"></div>Additive</div>
+            <div class="cl-item"><div class="cl-dot" style="background:rgba(200,126,58,.8)"></div>Deregulatory</div>
+          </div>
+          <p class="fn">Sources: FDIC Federal Register Publications, FDIC Board Matters 2015–2025, Gibson Dunn Monthly Bank Regulatory Reports, DWT 2025 Supervisory Changes Wrap-Up.</p>
+        </div>
+        <div class="chart-card">
+          <div class="cc-title">FDIC Direction Ratio</div>
+          <div class="cc-sub">The FDIC's 2023 ratio of 13:1 is the most extreme tightening peak of any agency in any year in the dataset. The 2025 swing to 0.43 is the sharpest year-over-year direction reversal.</div>
+          <canvas id="fdic-ratio" style="max-height:180px"></canvas>
+          <div class="cc-title" style="margin-top:18px">FDIC Highlights by Era</div>
+          <table class="regime-table">
+            <thead><tr><th>Era</th><th>Direction</th><th>Key FDIC Actions</th></tr></thead>
+            <tbody>
+              <tr><td>2015–16</td><td><span class="rb rb-add">↑ Additive</span></td><td>Deposit insurance assessment reform, resolution planning, brokered deposits ANPR, third-party risk management</td></tr>
+              <tr><td>2017–20</td><td><span class="rb rb-dreg">↓ Deregulatory</span></td><td>Brokered deposits rule reform, EGRRCPA implementation, Call Report simplification, de novo bank reopening</td></tr>
+              <tr><td>2021–24</td><td><span class="rb rb-add">↑ Additive</span></td><td>Basel III Endgame (joint), LTD NPR (joint), SVB special assessment, corporate governance NPR, CRA overhaul, merger scrutiny, Change in Bank Control Act amendment</td></tr>
+              <tr><td>2025</td><td><span class="rb rb-dreg">↓ Deregulatory</span></td><td>CRA 2023 rescission (joint), CBLR reduction NPR (joint), reputation risk ban (with OCC), "unsafe/unsound" standards, leveraged lending withdrawal, climate guidance rescission, GENIUS Act stablecoin NPR (additive)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALL THREE PANEL -->
+    <div class="chart-panel" id="cpanel-all">
+      <span class="agency-badge" style="border-color:rgba(201,168,76,.4);color:var(--acc);background:rgba(201,168,76,.07)">All Three Agencies Side-by-Side — OCC · Federal Reserve · FDIC · 2015–2025</span>
+      <div class="panel-title">OCC, Federal Reserve &amp; FDIC — All Three on One Chart</div>
+      <div class="panel-sub">Each agency plotted separately on the same axes for direct year-by-year comparison. Teal = OCC · Purple = Fed · Green = FDIC. Use the toggle to switch between all bars, additive-only, deregulatory-only, or net direction. The ratio and net charts below show all three lines together.</div>
+      <div class="view-btns">
+        <span class="cl" style="margin-right:2px">Show:</span>
+        <button class="vbtn active" id="a3-both" onclick="setAll3View('both',this)">Both directions</button>
+        <button class="vbtn" id="a3-add" onclick="setAll3View('add',this)">Additive only</button>
+        <button class="vbtn" id="a3-dreg" onclick="setAll3View('dreg',this)">Deregulatory only</button>
+        <button class="vbtn" id="a3-net" onclick="setAll3View('net',this)">Net direction</button>
+      </div>
+      <div class="chart-card" style="margin-bottom:14px">
+        <div class="cc-title">All Three Agencies — Additive &amp; Deregulatory NPRs Side-by-Side (2015–2025)</div>
+        <div class="cc-sub">Each year shows up to 6 grouped bars: OCC additive, OCC deregulatory, Fed additive, Fed deregulatory, FDIC additive, FDIC deregulatory. Transition years (2017, 2021) at reduced opacity.</div>
+        <canvas id="all3-bar" class="tall"></canvas>
+        <div class="chart-legend" style="margin-top:12px">
+          <div class="cl-item"><div class="cl-dot" style="background:rgba(126,184,181,.85)"></div>OCC Additive</div>
+          <div class="cl-item"><div class="cl-dot" style="background:rgba(201,168,76,.85)"></div>OCC Deregulatory</div>
+          <div class="cl-item"><div class="cl-dot" style="background:rgba(139,159,206,.85)"></div>Fed Additive</div>
+          <div class="cl-item"><div class="cl-dot" style="background:rgba(208,72,56,.85)"></div>Fed Deregulatory</div>
+          <div class="cl-item"><div class="cl-dot" style="background:rgba(158,184,126,.85)"></div>FDIC Additive</div>
+          <div class="cl-item"><div class="cl-dot" style="background:rgba(200,126,58,.85)"></div>FDIC Deregulatory</div>
+        </div>
+        <p class="fn">Interagency NPRs counted once per participating agency. Technical/inflation-adjustment amendments excluded.</p>
+      </div>
+      <div class="chart-grid-2-eq">
+        <div class="chart-card">
+          <div class="cc-title">Direction Ratio — All Three Agencies on One Line Chart</div>
+          <div class="cc-sub">Three ratio lines on the same axes. Points shift color when agency crosses into deregulatory territory (below 1.0). Dashed line = balance at 1:1.</div>
+          <canvas id="all3-ratio"></canvas>
+          <div class="chart-legend" style="margin-top:10px">
+            <div class="cl-item"><div class="cl-dot" style="background:#7eb8b5;border-radius:50%"></div>OCC</div>
+            <div class="cl-item"><div class="cl-dot" style="background:#8b9fce;border-radius:50%"></div>Fed</div>
+            <div class="cl-item"><div class="cl-dot" style="background:#9eb87e;border-radius:50%"></div>FDIC</div>
+            <div class="cl-item"><div class="cl-dot" style="background:rgba(255,255,255,.15)"></div>Balance 1:1</div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="cc-title">Net NPR Count — All Three Agencies (Add − Dereg)</div>
+          <div class="cc-sub">Grouped bars show each agency's net NPR direction per year. Teal/purple/green = net tightening; amber/red/orange = net deregulatory.</div>
+          <canvas id="all3-net"></canvas>
+          <div class="chart-legend" style="margin-top:10px">
+            <div class="cl-item"><div class="cl-dot" style="background:#7eb8b5"></div>OCC</div>
+            <div class="cl-item"><div class="cl-dot" style="background:#8b9fce"></div>Fed</div>
+            <div class="cl-item"><div class="cl-dot" style="background:#9eb87e"></div>FDIC</div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="cc-title">Agency-by-Agency Net Direction Heat Map 2015–2025</div>
+        <div class="cc-sub">Each cell = net NPRs (add − dereg) per agency per year. Teal intensity = tightening strength. Amber intensity = deregulatory strength.</div>
+        <div id="heatmap" style="overflow-x:auto;margin-top:10px"></div>
+        <p class="fn">Positive = more additive than deregulatory. Negative = more deregulatory. Values are net NPR differentials.</p>
+      </div>
+    </div>
+
+  </div><!-- /chart-panels -->
+
+  <div class="footer">NPR data compiled March 22, 2026 · Sources: OCC Proposed Issuances archive · Fed Supervision &amp; Regulation Reports 2015–2025 · FDIC Federal Register Publications · Gibson Dunn Monthly Bank Regulatory Reports · Freshfields 2025 Bank Regulatory Roundup · Mahmood FDIC Working Paper 2024 · Counts are estimates; interagency NPRs counted once per issuing agency · Not investment or legal advice</div>
+
+</div><!-- /page-charts -->
+
+
+<!-- ╔══════════════════════════════════════════════╗
+     ║  PAGE 3 — REGULATORY ANALYSIS               ║
+     ╚══════════════════════════════════════════════╝ -->
+<div class="page" id="page-analysis">
+
+  <div class="masthead">
+    <div class="mtag">Regulatory Analysis · Capital Impact · Every Article &amp; NPR · Line by Line</div>
+    <h1>Regulatory Analysis:<br>Every Source — Capital Impact, Line by Line</h1>
+    <div class="msub">Each article, commentary piece, and NPR rendered as a single scannable row with a 2–4 sentence capital-focused summary. Articles and NPRs are kept as separate sections. Click any row to expand the full summary. Filter by direction, agency, or crash-warning status.</div>
+    <div class="thesis"><p>Reading top to bottom traces a complete arc: <strong>academic research establishes the cyclical pattern</strong> → <strong>commentary documents the current environment</strong> → <strong>formal NPRs record the legal mechanics of each change.</strong> The capital thread: post-2008 buffers built over 15 years are being unwound in months, and the historical record shows this configuration has resolved the same way every time.</p></div>
+  </div>
+
+  <div class="kpi-band">
+    <div class="kpi"><div class="kpi-l">Articles &amp; Commentary</div><div class="kpi-v" style="color:var(--purple)">10</div><div class="kpi-s">Academic · Policy · Practitioner</div></div>
+    <div class="kpi"><div class="kpi-l">NPRs Tracked</div><div class="kpi-v" style="color:var(--acc)">28</div><div class="kpi-s">OCC · Fed · FDIC · 2018–2026</div></div>
+    <div class="kpi"><div class="kpi-l">Capital-Additive NPRs</div><div class="kpi-v" style="color:var(--teal)">11</div><div class="kpi-s">Increase requirements, add<br>buffers, expand oversight</div></div>
+    <div class="kpi"><div class="kpi-l">Capital-Deregulatory NPRs</div><div class="kpi-v" style="color:var(--orange)">17</div><div class="kpi-s">Reduce requirements, rescind<br>rules, ease thresholds</div></div>
+    <div class="kpi"><div class="kpi-l">Crash Warnings</div><div class="kpi-v" style="color:var(--red)">4</div><div class="kpi-s">Articles explicitly linking<br>deregulation to crisis risk</div></div>
+    <div class="kpi"><div class="kpi-l">Capital Released 2025</div><div class="kpi-v" style="color:var(--acc)">$213B+</div><div class="kpi-s">eSLR alone. Basel III withdrawal<br>adds $2.6T asset capacity</div></div>
+  </div>
+
+  <div class="ra-ctrl">
+    <span class="cl">Section:</span>
+    <button class="cb sec-on" id="ras-all" onclick="raFSec('all',this)">All (38)</button>
+    <button class="cb" id="ras-art" onclick="raFSec('article',this)">Articles &amp; Commentary (10)</button>
+    <button class="cb" id="ras-npr" onclick="raFSec('npr',this)">NPRs (28)</button>
+    <div class="dv"></div>
+    <span class="cl">Direction:</span>
+    <button class="cb on" id="rad-all" onclick="raFDir('all',this)">All</button>
+    <button class="cb" id="rad-add" onclick="raFDir('add',this)">↑ Additive</button>
+    <button class="cb" id="rad-dreg" onclick="raFDir('dreg',this)">↓ Deregulatory</button>
+    <div class="dv"></div>
+    <span class="cl">Agency:</span>
+    <button class="cb on" id="raa-all" onclick="raFAg('all',this)">All</button>
+    <button class="cb" id="raa-occ" onclick="raFAg('occ',this)">OCC</button>
+    <button class="cb" id="raa-fed" onclick="raFAg('fed',this)">Fed</button>
+    <button class="cb" id="raa-fdic" onclick="raFAg('fdic',this)">FDIC</button>
+    <div class="dv"></div>
+    <button class="cb" id="raw-btn" onclick="raFWarn(this)">⚠ Warnings</button>
+    <input class="srch" type="text" id="ra-search" placeholder="Search titles &amp; summaries…" oninput="raFSearch(this.value)">
+    <span id="ra-rc">38 items</span>
+  </div>
+
+  <!-- Articles section -->
+  <div class="sec-hdr" id="rahdr-article">
+    <div class="sec-title-row"><span class="sec-title">Articles &amp; Commentary</span><span class="sec-ct">10 sources</span></div>
+  </div>
+  <div class="sec-desc" id="radesc-article">Academic papers, policy reports, and practitioner commentary analyzed for capital impact. Sorted by capital severity score.</div>
+  <div class="sec-rule" id="rarule-article"></div>
+  <div class="row-list" id="ralist-article"></div>
+
+  <!-- NPR section -->
+  <div class="sec-hdr" id="rahdr-npr" style="margin-top:18px">
+    <div class="sec-title-row"><span class="sec-title">Notices of Proposed Rulemaking</span><span class="sec-ct">28 NPRs</span></div>
+  </div>
+  <div class="sec-desc" id="radesc-npr">Key capital-focused NPRs 2018–2025 across OCC, Federal Reserve, and FDIC. Each entry summarizes the specific capital mechanics — which ratio it affects, by how much, and what the systemic implication is.</div>
+  <div class="sec-rule" id="rarule-npr"></div>
+  <div id="ralist-npr"></div>
+
+  <div class="empty-state" id="ra-empty">No items match the current filters.</div>
+
+  <div class="fn-bar">Summaries represent editorial capital impact analysis based on public source material. Critical = systemic; High = material CET1/leverage effect; Mod = indirect/secondary; Low = minimal direct capital impact. Status as of March 22, 2026.</div>
+  <div class="footer">Regulatory Analysis · March 22, 2026 · Sources: FDIC · OCC · Federal Reserve · Gibson Dunn · Freshfields · Davis Wright Tremaine · Mayer Brown · Better Markets · CAP · Bankrate · CEPR VoxEU · Not investment or legal advice</div>
+
+</div><!-- /page-analysis -->
+
+
+
+<!-- PAGE 4: REGULATORY TIMELINE -->
+<div class="page" id="page-timeline">
+
+<div class="masthead">
+  <div class="mtag">Regulatory Timeline · US Banking Capital Regulation · 1913–2026</div>
+  <h1>The Regulatory Pendulum:<br>113 Years of US Banking Regulation</h1>
+  <div class="msub">Four visualizations of the same story — the US banking regulatory environment plotted against a zero baseline, where upward movement represents increasing regulatory intensity and downward movement represents deregulation. Each visual frames the same underlying data differently to reveal distinct aspects of the cycle.</div>
+  <div class="thesis"><p>The index is a composite Bank Regulation Intensity (BRI) score derived from the Mahmood FDIC 2024 working paper, Dagher IMF 2018 regulatory cycles research, and Federal Register rulemaking counts. <strong>Positive values = tighter than average. Negative values = looser than average.</strong> The pattern is unmistakable: every deregulatory trough since 1913 has been followed by a crisis. We are currently near the deepest trough since the pre-2008 nadir.</p></div>
+</div>
+<div class="kpi-band">
+  <div class="kpi"><div class="kpi-l">Historical Peak Regulation</div><div class="kpi-v" style="color:var(--teal)">+82</div><div class="kpi-s">2015–2016 · Basel III phase-in<br>Post-Dodd-Frank maximum</div></div>
+  <div class="kpi"><div class="kpi-l">Current Level (est. 2025)</div><div class="kpi-v" style="color:var(--acc)">+28</div><div class="kpi-s">Falling rapidly. Approaching<br>2018 trough that preceded SVB.</div></div>
+  <div class="kpi"><div class="kpi-l">Pre-2008 Nadir</div><div class="kpi-v" style="color:var(--red)">+8</div><div class="kpi-s">2006–2007 · Lowest post-New Deal<br>BRI before financial crisis</div></div>
+  <div class="kpi"><div class="kpi-l">Avg Trough → Crisis Lag</div><div class="kpi-v" style="color:var(--orange)">6–9yr</div><div class="kpi-s">1982→1989 (7yr) · 1999→2008 (9yr)<br>2018→2023 (5yr)</div></div>
+  <div class="kpi"><div class="kpi-l">Complete Cycles</div><div class="kpi-v" style="color:var(--purple)">5</div><div class="kpi-s">1929 · S&amp;L · Dot-com · 2008<br>2023 · (2025–? in progress)</div></div>
+  <div class="kpi"><div class="kpi-l">2026 BRI Direction</div><div class="kpi-v" style="color:var(--red)">↓</div><div class="kpi-s">Basel III reproposal modest add;<br>deregulatory pace still dominates</div></div>
+</div>
+
+<!-- VIZ 1 -->
+<div class="sec-wrap"><div class="slabel"><span class="viz-num">01</span>Continuous Index — Filled Area with Crisis Markers</div></div>
+<div class="chart-outer">
+  <div class="chart-card cc-border-teal">
+    <div class="cc-title">US Bank Regulation Intensity Index, 1913–2026</div>
+    <div class="cc-sub">Smooth continuous line. Zero = historical average. Area above zero filled teal (tightening). Area below zero filled red (deregulatory). Red vertical markers = banking crises. Hover for detail.</div>
+    <div class="ctrls">
+      <span class="clbl">Highlight:</span>
+      <button class="cbtn on" id="v1a" onclick="v1set('all',this)">All eras</button>
+      <button class="cbtn" id="v1d" onclick="v1set('dreg',this)">Deregulatory</button>
+      <button class="cbtn" id="v1r" onclick="v1set('reg',this)">Regulatory peaks</button>
+      <button class="cbtn" id="v1c" onclick="v1set('crisis',this)">Crises only</button>
+    </div>
+    <canvas id="cv1" height="110"></canvas>
+    <div class="leg">
+      <div class="li"><div class="ld" style="background:rgba(126,184,181,.5)"></div>Above baseline — tightening</div>
+      <div class="li"><div class="ld" style="background:rgba(208,72,56,.4)"></div>Below average — deregulatory</div>
+      <div class="li"><div class="ld" style="background:var(--red);width:3px;height:12px;border-radius:1px"></div>Banking crisis</div>
+      <div class="li"><div class="ld" style="background:var(--teal);border-radius:50%"></div>Regulatory increase</div>
+      <div class="li"><div class="ld" style="background:var(--acc);border-radius:50%"></div>Deregulatory action</div>
+    </div>
+    <div class="ev-ticker" id="ev-ticker"></div>
+    <p class="fn">BRI derived from: Mahmood FDIC Working Paper 2024 · Dagher IMF Working Paper 2018 · Federal Register NPR counts 2015–2025. Index normalized so historical mean = 0.</p>
+  </div>
+</div>
+
+<!-- VIZ 2 -->
+<div class="sec-wrap"><div class="slabel"><span class="viz-num">02</span>Regulatory Era Profile — Net Directional Change by Period</div></div>
+<div class="chart-outer">
+  <div class="chart-card cc-border-acc">
+    <div class="cc-title">Net Regulatory Direction by Era, 1913–2026</div>
+    <div class="cc-sub">Each bar = a distinct regulatory era. Height = net BRI change from start to end of that era. Bars above zero = net regulation increase. Bars below zero = net decrease. Color = direction. Width proportional to era duration.</div>
+    <canvas id="cv2" height="110"></canvas>
+    <div class="leg">
+      <div class="li"><div class="ld" style="background:rgba(126,184,181,.8)"></div>Net tightening era</div>
+      <div class="li"><div class="ld" style="background:rgba(208,72,56,.8)"></div>Net deregulatory era</div>
+      <div class="li"><div class="ld" style="background:rgba(201,168,76,.6)"></div>Mixed / transition era</div>
+    </div>
+    <div class="era-row" id="era-chips"></div>
+    <p class="fn">Era boundaries defined by major legislative inflection points. Net BRI = end-of-era minus start-of-era BRI. Bar width proportional to duration in years.</p>
+  </div>
+</div>
+
+<!-- VIZ 3 -->
+<div class="sec-wrap"><div class="slabel"><span class="viz-num">03</span>Event-Driven Step Chart — Every Major Rule = One Step</div></div>
+<div class="chart-outer">
+  <div class="chart-card cc-border-purple">
+    <div class="cc-title">US Banking Regulation as a Step Function, 1913–2026</div>
+    <div class="cc-sub">Each major regulatory action = one discrete step up or down. Cumulative steps form the staircase. Green segments = upward (tightening). Amber segments = downward (deregulation). Red circles = crisis events. Crises consistently occur near local BRI minima.</div>
+    <div class="ctrls">
+      <span class="clbl">Zoom:</span>
+      <button class="cbtn on" id="v3f" onclick="v3set('full',this)">Full history</button>
+      <button class="cbtn" id="v3p" onclick="v3set('post80',this)">1980–2026</button>
+      <button class="cbtn" id="v3r" onclick="v3set('post08',this)">2008–2026</button>
+    </div>
+    <canvas id="cv3" height="120"></canvas>
+    <div class="leg">
+      <div class="li"><div class="ld" style="background:rgba(126,184,181,.8)"></div>Step up (new rule / capital increase)</div>
+      <div class="li"><div class="ld" style="background:rgba(201,168,76,.8)"></div>Step down (rollback / threshold ease)</div>
+      <div class="li"><div class="ld" style="background:#d04838;border-radius:50%"></div>Crisis event</div>
+    </div>
+    <p class="fn">Step heights proportional to estimated BRI impact of each legislative or regulatory action. Crisis events plotted at their BRI level at time of occurrence — showing crises consistently occur at or near local minima.</p>
+  </div>
+</div>
+
+<!-- VIZ 4 -->
+<div class="sec-wrap"><div class="slabel"><span class="viz-num">04</span>The Regulatory Cycle — Circular / Radial View</div></div>
+<div class="chart-outer">
+  <div class="chart-card cc-border-red" style="min-height:660px">
+    <div class="cc-title">US Banking Regulation as a Repeating Cycle</div>
+    <div class="cc-sub">A polar / radial representation of the regulatory cycle across five complete cycles. Radial distance from center = regulatory intensity (BRI). The cycle moves clockwise through four phases: Regulatory Peak → Erosion → Deregulatory Trough → Crisis &amp; Re-regulation. The current cycle (amber, dashed) is in the Erosion → Trough phase based on 2025 NPR data.</div>
+    <div style="display:flex;justify-content:center;padding:10px 0 0">
+      <canvas id="cv4" width="660" height="660" style="max-width:660px;max-height:660px"></canvas>
+    </div>
+    <div class="leg" style="justify-content:center;margin-top:14px">
+      <div class="li"><div class="ld" style="background:rgba(126,184,181,.7)"></div>1929–1945 Cycle (Great Depression)</div>
+      <div class="li"><div class="ld" style="background:rgba(158,184,126,.7)"></div>1945–1989 Cycle (Post-war / S&amp;L)</div>
+      <div class="li"><div class="ld" style="background:rgba(139,159,206,.7)"></div>1989–2010 Cycle (Glass-Steagall / 2008)</div>
+      <div class="li"><div class="ld" style="background:rgba(200,126,58,.7)"></div>2010–2023 Cycle (Dodd-Frank / SVB)</div>
+      <div class="li"><div class="ld" style="background:rgba(201,168,76,.9)"></div>2023–present (Current — active)</div>
+    </div>
+    <p class="fn" style="margin-top:12px">Each cycle normalized to a 0–360° arc allowing direct shape comparison. Radial distance = BRI relative to cycle-start baseline. Current cycle position estimated from 2025 NPR data and projected 2026 direction. Arrow shows direction of travel.</p>
+  </div>
+</div>
+
+<div class="page-div"></div>
+<div class="footer">Regulatory Timeline · March 22, 2026 · BRI Index from: Mahmood FDIC Working Paper 2024 · Dagher IMF Working Paper 2018 · Federal Register NPR counts 2015–2025 · Gibson Dunn Monthly Bank Regulatory Reports · Kroszner &amp; Strahan (NBER) · Index is a composite estimate; individual data points are approximations. Not investment or legal advice.</div>
+
+
+</div>
+<script>
+let chartsBuilt = false;
+let tlBuilt = false;
+
+/* ════════ PAGE NAV ════════ */
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'charts' && !chartsBuilt) { buildAllCharts(); chartsBuilt = true; }
+  if (id === 'timeline' && !tlBuilt) { initTimeline(); tlBuilt = true; }
+}
+
+/* ════════════════════════════════
+   PAGE 1 DATA — ARTICLES
+════════════════════════════════ */
+const ARTICLES = [
+  { id:'A1', type:'article', warn:true, color:'#d04838',
+    title:'Deregulation Déjà Vu: 3 Cycles Every Compliance Leader Should Remember',
+    source:'Corporate Compliance Insights · Elaine F. Duffus, Wolters Kluwer · September 25, 2025',
+    author:'Elaine F. Duffus, Wolters Kluwer',
+    ttype:'ARTICLE', impact:95, il:'CRITICAL',
+    url:'https://www.corporatecomplianceinsights.com/deregulation-deja-vu/',
+    summary:'The article documents three identical deregulatory scripts — each ending in a capital-driven crisis — mapping the <strong>S&L collapse (1989)</strong>, the <strong>2008 financial crisis</strong>, and the <strong>2023 SVB/Signature failures</strong> onto a single repeating pattern: capital buffers erode, risk concentrates, and a triggering event reveals hidden insolvency. In each cycle, bank capital ratios appeared healthy under the existing regulatory framework right up to the point of failure, because the <strong>framework itself had been weakened</strong> to make the ratios look adequate — a precise description of where we are in 2025. The 2025 rollbacks — specifically the eSLR ease and Basel III withdrawal — are identified as structurally identical to the 2018 EGRRCPA changes that removed stress-testing capital requirements from the exact banks that failed in 2023. The article\'s central warning is that <em>this is the first time in 40 years the regulatory response to a banking crisis has been further deregulation rather than capital rebuilding</em>.',
+  },
+  { id:'A2', type:'article', warn:true, color:'#c9a84c',
+    title:'Regulatory Cycles: Revisiting the Political Economy of Financial Crises',
+    source:'CEPR VoxEU / IMF Research · Jihad Dagher · 2018 (current relevance 2025)',
+    author:'Jihad Dagher, IMF Research Dept.',
+    ttype:'ACADEMIC', impact:90, il:'CRITICAL',
+    url:'https://cepr.org/voxeu/columns/regulatory-cycles-revisiting-political-economy-financial-crises',
+    summary:'This IMF research paper establishes that <strong>regulatory agency staffing and budgets collapse during economic booms</strong>, precisely when capital discipline is most needed — with Figure 1 plotting supervisory resources against stock market performance in the US, Japan, and Spain to show the inverse correlation. The paper\'s most important capital finding is that <strong>deregulation has preceded every major financial crisis since 1825</strong>, and that the mechanism in each case involves either explicit capital requirement reductions or supervisory laxity that allows real capital adequacy to diverge from reported metrics. The 2017 Dodd-Frank rollback plans analyzed drew a direct structural parallel to the 1999 Gramm-Leach-Bliley repeal, which similarly dismantled capital activity restrictions and preceded the 2008 collapse by nine years. <em>The current Federal Reserve supervisory staffing cut of 30% follows the identical pattern documented to have preceded every prior capital crisis in this paper\'s dataset.</em>',
+  },
+  { id:'A3', type:'article', warn:true, color:'#d04838',
+    title:'Two Years After the 2023 Banking Crisis: The Warning Signs Are Louder Than Ever',
+    source:'Better Markets · March 4, 2025',
+    author:'Better Markets Staff',
+    ttype:'ARTICLE', impact:92, il:'CRITICAL',
+    url:'https://bettermarkets.org/wp-content/uploads/2025/03/BetterMarkets_Two_Years_After_2023_Banking_Crisis_Report_03-04-2025.pdf',
+    summary:'This March 2025 report catalogs dozens of capital-related deregulatory rulemakings from 2016–2020, arguing these <strong>directly caused SVB\'s fatal capital vulnerability</strong> — most critically the 2019 tailoring rules that removed enhanced capital requirements and stress testing from the exact $100B–$250B bank tier where SVB sat. Better Markets documents that Trump 2.0\'s 2025 capital deregulation already exceeds Trump 1.0\'s pace and specifically targets the buffers built in response to SVB\'s failure, including the eSLR modification and CBLR reduction. Two appendices provide the most comprehensive capital-impact catalog in the dataset — rule by rule, with specific CET1, LCR, and leverage ratio effects identified for each deregulatory action. <em>The report concludes the 2025 environment is more deregulatory than 2016–2020 at an equivalent stage, and that no lessons from the 2023 failures are being applied to prevent the next ones.</em>',
+  },
+  { id:'A4', type:'article', warn:true, color:'#7eb8b5',
+    title:'Financial Regulatory Cycles: A Political Economy Model',
+    source:'ScienceDirect / Journal of Financial Intermediation · July 18, 2025',
+    author:'Academic Research (peer-reviewed)',
+    ttype:'ACADEMIC', impact:88, il:'HIGH',
+    url:'https://www.sciencedirect.com/science/article/abs/pii/S1042957325000324',
+    summary:'This peer-reviewed paper provides a formal political economy model proving that politicians <strong>systematically overshoot capital requirement reductions during economic expansions</strong>, releasing more capital than is socially optimal because short-term benefits are immediately visible while systemic risk accumulation is latent and politically invisible. The model\'s empirical validation through the 2018 EGRRCPA shows removing capital stress testing from $50B–$250B banks was the specific mechanism that allowed SVB\'s fatal interest-rate risk to accumulate undetected; the paper estimates political frictions increase the amplitude of capital requirement swings by approximately 40% above the economically optimal path. The model also predicts post-crisis regulatory overshoot in the opposite direction — Dodd-Frank imposed requirements beyond optimal, creating political conditions for the 2018 backlash, <em>which in turn creates the conditions for the next crisis — a formally modeled doom loop in capital policy</em>.',
+  },
+  { id:'A5', type:'article', warn:false, color:'#9eb87e',
+    title:'The Long and Short of U.S. Bank Regulations: A Century of Evidence',
+    source:'FDIC Working Paper · Mahmood · September 2024',
+    author:'Mahmood, FDIC Research Dept.',
+    ttype:'ACADEMIC', impact:85, il:'HIGH',
+    url:'https://www.fdic.gov/system/files/2024-09/mahmood-paper-091224.pdf',
+    summary:'This FDIC working paper constructs a Bank Regulation Index spanning 100 years, making the capital cycle <strong>quantitatively visible in a single chart</strong>: the BRI peaks after every banking crisis (1933, 1991, 2010) and troughs during deregulatory booms (1984, 1999, 2018), with each trough followed by a crisis within 5–9 years. The paper\'s most important capital finding is that <strong>banking crises are the single strongest statistical predictor of future capital regulation tightening</strong>, meaning the 2025 deregulatory shift is historically associated with a future crisis rather than a future stability period. Machine learning analysis of news coverage from 1920–2024 found that deregulatory capital changes consistently receive positive media framing — <em>and the current coverage of 2025 deregulation follows that same positive-framing pattern, suggesting the systemic risk accumulation is being masked by media narrative just as the model predicts</em>.',
+  },
+  { id:'A8', type:'article', warn:false, color:'#c9a84c',
+    title:'Glass-Steagall Act: The Law That Kept Banks Safe for 66 Years',
+    source:'HISTORY.com · May 27, 2025 (updated)',
+    author:'HISTORY.com Editors',
+    ttype:'ARTICLE', impact:72, il:'MOD',
+    url:'https://www.history.com/articles/glass-steagall-act',
+    summary:'The article documents how Glass-Steagall\'s 1933 separation of commercial and investment banking functioned as an <strong>implicit capital adequacy framework</strong> — by prohibiting commercial banks from using insured deposits to fund trading, it structurally capped leverage ratios without requiring complex risk-weighted capital calculations. The 1999 Gramm-Leach-Bliley repeal allowed the largest banks to dramatically increase trading book exposure; Citigroup\'s merger created a bank whose capital requirements immediately became inadequate for its combined risk profile, requiring a $45B TARP injection within a decade. The 70-year Glass-Steagall stability period represents the longest uninterrupted era of US banking capital adequacy in the modern record — <em>anchoring the argument that structural activity restrictions are an effective alternative to explicit capital ratio floors, and that their removal is always eventually reflected in a capital event</em>.',
+  },
+  { id:'A6', type:'commentary', warn:false, color:'#8b9fce',
+    title:'The New Age of US Bank Deregulation: What It Means for GRC Professionals',
+    source:'Governance Intelligence · Late 2025',
+    author:'Governance Intelligence Staff',
+    ttype:'COMMENTARY', impact:82, il:'HIGH',
+    url:'https://www.governance-intelligence.com/regulatory-compliance/new-age-us-bank-deregulation-what-it-means-grc-professionals',
+    summary:'This practitioner article provides the most precise capital-metric quantification in the dataset: <strong>the November 2025 eSLR modification releases approximately $213 billion in total capital</strong>, reducing subsidiary capital requirements at major banks by ~27% and holding company eSLR by ~$13B — the single largest capital relief event since post-crisis rules were finalized. The piece correctly frames these capital buffers not as arbitrary constraints but as designed shock absorbers engineered after 2008 to absorb losses at the magnitude observed in that crisis, meaning their removal reduces the banking system\'s tested capacity to withstand a comparable shock. The practical conclusion is that <em>lighter capital rules do not reduce the need for strong risk management — they increase it</em>, because the consequences of inadequate internal capital discipline are now borne by banks rather than backstopped by regulatory minimums.',
+  },
+  { id:'A7', type:'commentary', warn:false, color:'#b87eb8',
+    title:'Dodd-Frank and Deregulation: Some Lessons from History',
+    source:'Better Markets · November 14, 2017',
+    author:'Better Markets Staff',
+    ttype:'COMMENTARY', impact:78, il:'HIGH',
+    url:'https://bettermarkets.org/newsroom/dodd-frank-and-deregulation-some-lessons-history/',
+    summary:'This 2017 report traces the direct lineage of capital erosion from the 1999 Glass-Steagall repeal through the 2004 SEC leverage ratio decision — which allowed investment banks to operate at 30:1+ leverage without commensurate capital — to the 2008 collapse requiring $700B in TARP capital support. <strong>Glass-Steagall\'s commercial/investment banking separation functioned as an implicit capital protection mechanism</strong>: by prohibiting commercial banks from accumulating trading book risk, it structurally limited leverage ratios without requiring explicit capital ratio rules. Written as a warning against Trump 1.0 Dodd-Frank rollbacks, its specific prediction that raising the $50B threshold would create capital-inadequate mid-size banks <em>proved exactly right when SVB failed in 2023 — six years after the warning was published</em>.',
+  },
+  { id:'A9', type:'commentary', warn:true, color:'#7eacb8',
+    title:'Resisting Financial Deregulation: Safeguarding Capital Requirements and Prudential Rules',
+    source:'Center for American Progress · December 4, 2017',
+    author:'CAP Policy Team',
+    ttype:'COMMENTARY', impact:80, il:'HIGH',
+    url:'https://www.americanprogress.org/article/resisting-financial-deregulation/',
+    summary:'This report provides the most detailed pre-2018 analysis of Dodd-Frank capital provisions at risk of rollback, including the Volcker Rule, LCR liquidity requirements, and the <strong>$50B threshold for enhanced capital stress testing</strong> — accurately predicting that raising this threshold would exempt mid-size banks from the capital discipline later essential to SVB\'s survival. It invokes Alan Blinder\'s financial entropy theorem to explain why capital requirements erode predictably during boom periods: regulators facing minimal near-term crisis risk lose political will to maintain burdensome floors, and institutions invest heavily in lobbying for relief precisely when times are good. The report documents that the banks most likely to benefit from threshold changes collectively received $50B in TARP bailouts — <em>meaning taxpayers had already paid to build the capital system that was subsequently dismantled and now is being dismantled again</em>.',
+  },
+  { id:'A10', type:'commentary', warn:false, color:'#b8957e',
+    title:'What Banking Deregulation Could Mean for Your Money: 4 Key Changes to Watch',
+    source:'Bankrate · Marcos Cabello, J.D. · September 15, 2025',
+    author:'Marcos Cabello, J.D.',
+    ttype:'COMMENTARY', impact:58, il:'MOD',
+    url:'https://www.bankrate.com/banking/what-banking-deregulation-could-mean-for-your-money-4-key-changes-to-watch-for/',
+    summary:'This consumer-focused piece translates abstract capital changes into economic transmission: <strong>lower capital requirements allow banks to extend more credit, increase dividends, and repurchase shares</strong>, boosting shareholder returns in the near term while reducing the loss-absorption buffer available in a stress scenario. The $12.1B in annual fee revenue that deregulation restores to bank income improves near-term CET1 generation while reducing the consumer protections that historically provide early warning signals of credit quality deterioration in the loan book. <em>When fee income drives bank earnings above sustainable levels, the resulting excess capital tends to be deployed into riskier assets rather than held as buffer, distributing short-term gains to shareholders while tail risk accumulates for depositors and taxpayers</em> — the distributional question at the heart of every capital deregulation cycle.',
+  },
+];
+
+/* ════════════════════════════════
+   PAGE 3 DATA — NPRs (full dataset from uploaded file)
+════════════════════════════════ */
+const NPRS = [
+  { id:'N1', section:'npr', dir:'dreg', agency:'occ', warn:false, color:'#c9a84c',
+    title:'Heightened Standards Threshold Raised: $50B → $700B in Total Assets',
+    source:'OCC · Proposed 2025 · Pending finalization',
+    tags:['bd-npr','bd-dereg','bd-occ','bd-capital','bd-pending'], tl:['NPR','↓ DEREG','OCC','CAPITAL','PENDING'],
+    impact:88, il:'HIGH', url:'https://www.occ.gov',
+    summary:'This NPR raises the asset threshold at which enhanced capital and governance standards apply from <strong>$50 billion to $700 billion</strong> — reducing institutions subject to the OCC\'s most rigorous capital oversight from 38 to just 8. Banks between $50B and $700B would no longer be required to maintain enhanced internal capital adequacy processes, stress-testing methodologies, or governance structures that generate capital oversight, potentially allowing capital allocations to drift from optimal levels without regulatory scrutiny. This expansion is structurally identical to the 2018 EGRRCPA\'s $50B→$250B increase — which exempted SVB from stress testing and was later identified as a causal factor in its failure — <em>scaled dramatically further upward and covering a much larger share of mid-market banking assets</em>.',
+  },
+  { id:'N2', section:'npr', dir:'dreg', agency:'occ', warn:false, color:'#c9a84c',
+    title:'Reputation Risk Prohibition from Supervisory Programs (OCC–FDIC Joint)',
+    source:'OCC + FDIC · October 7, 2025 · Pending finalization',
+    tags:['bd-npr','bd-dereg','bd-occ','bd-fdic','bd-joint','bd-pending'], tl:['NPR','↓ DEREG','OCC + FDIC','JOINT','PENDING'],
+    impact:62, il:'MOD', url:'https://www.mayerbrown.com/en/insights/publications/2025/10/us-fdic-and-occ-issue-joint-notice-of-proposed-rulemaking-to-prohibit-the-use-of-reputation-risk-by-regulators',
+    summary:'This joint NPR would codify removal of reputation risk from both agencies\' supervisory programs, prohibiting examiners from criticizing or taking adverse action on reputational grounds. While not a direct capital rule, reputation risk assessments historically served as an early-warning mechanism for catching asset concentrations — crypto, leveraged lending, CRE — that could create unexpected capital losses before credit risk materialized in formal metrics. <strong>Removing reputational risk eliminates the early-warning signal that has historically caught capital-threatening concentrations before they appear in CET1 ratios</strong>, narrowing the supervisory lens at the moment new risk categories like digital assets and AI-driven credit are entering bank balance sheets at scale.',
+  },
+  { id:'N3', section:'npr', dir:'dreg', agency:'occ', warn:false, color:'#c9a84c',
+    title:'"Unsafe or Unsound Practice" Definition + MRA Standards (OCC–FDIC Joint)',
+    source:'OCC + FDIC · October 2025 · Comment period closed Dec 29, 2025',
+    tags:['bd-npr','bd-dereg','bd-occ','bd-fdic','bd-joint','bd-pending'], tl:['NPR','↓ DEREG','OCC + FDIC','JOINT','PENDING'],
+    impact:72, il:'HIGH', url:'https://www.fdic.gov/news/speeches/2025/oversight-prudential-regulators',
+    summary:'This NPR formally defines "unsafe or unsound practice" to require <strong>demonstrable material financial impact</strong> before an examiner can issue a formal supervisory finding, raising the legal threshold for capital-related enforcement actions and reducing examiner discretion to flag risk concentrations not yet impaired in reported capital metrics. The elevated MRA standard requires examiners to wait for capital ratios to show stress rather than intervening when risk management processes appear inadequate — and the Federal Reserve\'s own SVB review found supervisors had identified concerns but failed to act with sufficient force and speed. <em>This NPR codifies a higher legal bar for exactly that kind of early capital enforcement action, making the SVB failure pattern structurally more likely to repeat</em>.',
+  },
+  { id:'N4', section:'npr', dir:'dreg', agency:'occ', warn:false, color:'#c9a84c',
+    title:'Community Bank Definition Expansion: $10B → $30B in Assets',
+    source:'OCC · December 2025 · Pending finalization',
+    tags:['bd-npr','bd-dereg','bd-occ','bd-pending'], tl:['NPR','↓ DEREG','OCC','PENDING'],
+    impact:55, il:'MOD', url:'https://www.dwt.com/blogs/financial-services-law-advisor/2025/11/summary-of-bank-supervisory-changes-in-2025',
+    summary:'This OCC proposal triples the community bank asset threshold, removing banks with $10B–$30B in total assets from the regulatory category that applies larger-bank capital examination standards — including Call Report requirements, RNDIP examination protocols, and certain governance expectations. Community bank examination frameworks use simplified capital assessment tools calibrated for simpler business models, meaning institutions that have grown into more complex risk profiles retain access to the less rigorous capital framework. <em>At $30B in assets these are not small institutions</em>; SVB, Signature, and First Republic each passed through this size range during the growth trajectories that accumulated the capital vulnerabilities later causing their collapse.',
+  },
+  { id:'N5', section:'npr', dir:'dreg', agency:'occ', warn:false, color:'#c9a84c',
+    title:'Leveraged Lending Guidance Withdrawal (OCC–FDIC Joint)',
+    source:'OCC + FDIC · December 2025 · Final — effective immediately',
+    tags:['bd-npr','bd-dereg','bd-occ','bd-fdic','bd-joint','bd-capital','bd-final'], tl:['FINAL','↓ DEREG','OCC + FDIC','CAPITAL','FINAL'],
+    impact:70, il:'HIGH', url:'https://www.gibsondunn.com/monthly-bank-regulatory-report-december-2025/',
+    summary:'The OCC and FDIC withdrew the 2013 interagency leveraged lending guidance, <strong>removing capital-discipline guardrails on the asset class most correlated with credit losses in economic downturns</strong>. Leveraged loans require higher risk-weight capital allocations under Basel III; the 2013 guidance imposed additional supervisory scrutiny on top of those minimums, so its withdrawal reduces both formal examination pressure and informal regulatory constraint on leveraged credit origination simultaneously. The agencies replaced it with general safe-and-sound lending principles — providing examiners significantly less specific guidance on when to require capital adjustments for concentrated leveraged loan books, precisely the type of concentration that has triggered capital crises in prior cycles.',
+  },
+  { id:'N6', section:'npr', dir:'dreg', agency:'fed', warn:false, color:'#d04838',
+    title:'Enhanced Supplementary Leverage Ratio (eSLR) Modification — GSIB Capital Relief',
+    source:'Federal Reserve + OCC + FDIC · Final — November 2025',
+    tags:['bd-npr','bd-dereg','bd-fed','bd-joint','bd-capital','bd-final'], tl:['FINAL','↓ DEREG','INTERAGENCY','CAPITAL','FINAL'],
+    impact:98, il:'CRITICAL', url:'https://www.governance-intelligence.com/regulatory-compliance/new-age-us-bank-deregulation-what-it-means-grc-professionals',
+    summary:'The finalized eSLR modification is the single most significant capital event since Dodd-Frank\'s post-crisis architecture was completed — <strong>releasing approximately $213 billion in required capital from GSIB subsidiary banks</strong>, reducing their leverage ratio requirement by ~27% and holding company eSLR by ~$13B. The eSLR was designed as a backstop to risk-based capital measures, ensuring that even if risk-weighting models underestimated asset risk (as in 2008) a hard leverage floor would prevent excessive balance sheet growth — its reduction removes the safety net beneath the risk-weight models most likely to fail in a stress scenario. The capital freed will largely be returned to shareholders through dividends and buybacks — <em>the eSLR was specifically designed to prevent the leverage-driven balance sheet expansion that preceded 2008; its reduction restores exactly that capacity</em>.',
+  },
+  { id:'N7', section:'npr', dir:'dreg', agency:'fed', warn:false, color:'#d04838',
+    title:'Basel III Endgame — Withdrawn (Not Finalized)',
+    source:'Federal Reserve + OCC + FDIC · Proposed July 2023 · Withdrawn 2025',
+    tags:['bd-npr','bd-dereg','bd-fed','bd-joint','bd-capital','bd-withdrawn'], tl:['NPR','↓ DEREG','INTERAGENCY','CAPITAL','WITHDRAWN'],
+    impact:100, il:'CRITICAL', url:'https://blog.freshfields.us/post/102lymd/2025-bank-regulatory-roundup-and-what-to-look-for-in-2026',
+    summary:'The withdrawal of the 2023 Basel III Endgame proposal — which would have increased capital requirements for GSIBs by an estimated <strong>19% and regional banks by 6%</strong> — represents the largest single capital increase that will not happen, preserving an estimated $2.6 trillion in additional asset capacity. The proposal was designed to address four structural capital weaknesses exposed by SVB\'s failure, including the mandatory inclusion of unrealized securities losses in regulatory capital for Category III–IV banks — the specific accounting exemption that allowed SVB to appear well-capitalized until its final hours. A simplified reproposal targeting approximately 5–8% uplift is expected in 2026 — <em>meaning the specific capital vulnerability that allowed SVB to conceal its insolvency remains in place for the entire Category III–IV bank tier throughout the transition</em>.',
+  },
+  { id:'N8', section:'npr', dir:'add', agency:'fed', warn:false, color:'#8b9fce',
+    title:'Basel III Endgame — Original Proposal (2023, Superseded)',
+    source:'Federal Reserve + OCC + FDIC · Proposed July 27, 2023 · Withdrawn',
+    tags:['bd-npr','bd-add','bd-fed','bd-joint','bd-capital','bd-withdrawn'], tl:['NPR','↑ ADDITIVE','INTERAGENCY','CAPITAL','SUPERSEDED'],
+    impact:100, il:'CRITICAL', url:'https://www.fdic.gov/system/files/2024-06/2023-regulatory-capital-rule-large-banking-organizations-3064-af29-c-278.pdf',
+    summary:'The 2023 Basel III Endgame proposal represented the most comprehensive capital reform since Dodd-Frank, proposing a <strong>19% aggregate capital increase for GSIBs</strong> along with four structural capital fixes: standardized operational risk capital, revised market risk framework, elimination of internal model reliance for credit risk, and mandatory inclusion of unrealized securities losses in CET1 for all Category III–IV banks. The proposal would have directly addressed SVB\'s precise capital failure mode — the exemption allowing banks above $100B to exclude unrealized AFS and HTM securities losses from regulatory capital, which created the appearance of adequate capital while the bank\'s true economic net worth was deeply negative. <em>The proposal\'s withdrawal means the specific capital exemption that allowed SVB to appear well-capitalized until its final hours remains in place for the entire Category III–IV bank tier</em>.',
+  },
+  { id:'N9', section:'npr', dir:'add', agency:'fed', warn:false, color:'#8b9fce',
+    title:'Long-Term Debt (LTD) Requirement for Large Banks',
+    source:'Federal Reserve + OCC + FDIC · Proposed August 2023 · Pending finalization',
+    tags:['bd-npr','bd-add','bd-fed','bd-joint','bd-capital','bd-pending'], tl:['NPR','↑ ADDITIVE','INTERAGENCY','CAPITAL','PENDING'],
+    impact:78, il:'HIGH', url:'https://www.dwt.com/blogs/financial-services-law-advisor/2024/11/how-trump-could-change-bank-regulatory-trends',
+    summary:'The LTD NPR would require large banks to maintain sufficient long-term debt to absorb losses in resolution — adding an estimated <strong>$70–100B in required loss-absorbing capacity</strong> and reducing the need for government bailouts. Unlike equity capital requirements, LTD requirements are less politically contentious because they preserve shareholder priority and do not reduce shareholder returns during normal operation. Major banks have already begun issuing qualifying debt in anticipation — <em>making this the only capital-increasing NPR from the Biden era with a viable path to finalization under the current administration</em>.',
+  },
+  { id:'N10', section:'npr', dir:'dreg', agency:'fed', warn:false, color:'#d04838',
+    title:'CBLR Reduction: Community Bank Leverage Ratio 9% → 8%',
+    source:'Federal Reserve + OCC + FDIC · Proposed November 2025 · Pending',
+    tags:['bd-npr','bd-dereg','bd-fed','bd-joint','bd-capital','bd-pending'], tl:['NPR','↓ DEREG','INTERAGENCY','CAPITAL','PENDING'],
+    impact:60, il:'MOD', url:'https://www.fdic.gov/news/speeches/2025/oversight-prudential-regulators',
+    summary:'This joint NPR reduces the Community Bank Leverage Ratio from 9% to 8% and extends the grace period from two to four quarters, <strong>lowering the minimum capital buffer for qualifying community banks by approximately 11% in relative terms</strong> while expanding the eligibility universe. The CBLR was designed as a simpler alternative to full Basel III calculations for smaller institutions; reducing the ratio means community banks can operate with proportionally less capital relative to their assets while remaining compliant. <em>The aggregate capital reduction across thousands of institutions compounds the effects of concurrent deregulatory actions at larger banks, particularly given the sector\'s elevated commercial real estate concentration risk</em>.',
+  },
+  { id:'N11', section:'npr', dir:'dreg', agency:'fed', warn:false, color:'#d04838',
+    title:'Stress Test Model Transparency — Public Disclosure of Fed Stress Test Models',
+    source:'Federal Reserve · Proposed October 2025 · Pending',
+    tags:['bd-npr','bd-dereg','bd-fed','bd-capital','bd-pending'], tl:['NPR','↓ DEREG','FED','CAPITAL','PENDING'],
+    impact:68, il:'MOD-HIGH', url:'https://practiceguides.chambers.com/practice-guides/banking-regulation-2026/usa/trends-and-developments',
+    summary:'This NPR proposes to publicly release the Federal Reserve\'s stress testing models and assumptions in advance, which critics argue will allow <strong>banks to optimize their portfolios specifically to minimize stress capital buffer requirements</strong> rather than to minimize actual risk. The stress capital buffer — ranging from 2.5% to ~7% of RWA for the most complex banks — is the primary mechanism linking forward-looking risk assessment to required capital levels; exposing the model\'s parameters allows institutions to shift toward assets that test well rather than assets that are genuinely lower-risk. <em>A stress test whose methodology is publicly known may satisfy formal capital requirements while providing less actual stress resilience</em> — the information asymmetry between regulator and institution is itself a capital safety feature the NPR would diminish.',
+  },
+  { id:'N12', section:'npr', dir:'dreg', agency:'fed', warn:true, color:'#d04838',
+    title:'2019 Tailoring Rules — Dodd-Frank Threshold Rollback (Trump 1.0, Historical)',
+    source:'Federal Reserve + OCC + FDIC · Final 2019 · Historical — causally linked to 2023 failures',
+    tags:['bd-npr','bd-dereg','bd-fed','bd-joint','bd-capital','bd-warn','bd-final'], tl:['FINAL RULE (HIST.)','↓ DEREG','INTERAGENCY','CAPITAL','⚠ CAUSAL — SVB'],
+    impact:95, il:'CRITICAL', url:'https://www.fdic.gov/system/files/2024-06/2023-regulatory-capital-rule-large-banking-organizations-3064-af29-c-278.pdf',
+    summary:'The 2019 tailoring rules removed enhanced capital requirements, mandatory stress testing, and liquidity standards from banks with $100B–$250B in total assets — <strong>the most consequential capital deregulation of the Trump 1.0 era</strong>, whose specific effects were causally identified in the Federal Reserve\'s own 2023 post-mortem of SVB\'s failure. SVB grew from $56B (2018) to $212B (2022) entirely within the capital exemption created by these rules, concealing the fatal capital-to-interest-rate-risk mismatch that caused its collapse. The Fed\'s SVB review explicitly states the tailoring rules "impeded effective supervision" — making this <em>the only rule in this dataset with a government-documented causal link between capital deregulation and a specific subsequent bank failure</em>.',
+  },
+  { id:'N13', section:'npr', dir:'dreg', agency:'fed', warn:true, color:'#d04838',
+    title:'Federal Reserve Supervision Staff Reduction — 30% Cut (Administrative Action)',
+    source:'Federal Reserve · Implemented 2025 · Administrative action, not formal NPR',
+    tags:['bd-npr','bd-dereg','bd-fed','bd-warn'], tl:['ADMIN ACTION','↓ DEREG','FED','⚠ HIST. WARNING SIGN'],
+    impact:85, il:'HIGH', url:'https://www.conference-board.org/research/ced-policy-backgrounders/deregulation-reshapes-financial-oversight',
+    summary:'Academic literature (Dagher 2018, Mahmood 2024) identifies <strong>supervisory staffing cuts as one of the three most reliable leading indicators of a forthcoming capital crisis</strong> — more predictive than any formal rulemaking because they reduce the enforcement capacity that gives existing capital rules their operational force. The FDIC and OCC made similar reductions; collectively the three agencies are operating supervision with significantly reduced human capital at the exact moment the formal capital framework is being loosened, creating a compound deregulatory effect that far exceeds what the formal NPR count reflects. <em>The Dagher 2018 IMF paper charts this exact dynamic — US regulatory agency staffing fell sharply in the late-1990s boom (preceding 2008) and mid-2010s expansion (preceding 2023) — the current reductions follow the identical pattern</em>.',
+  },
+  { id:'N14', section:'npr', dir:'add', agency:'fdic', warn:false, color:'#9eb87e',
+    title:'Special Assessment — SVB/Signature Bank Systemic Risk Recovery',
+    source:'FDIC · Proposed May 2023 · Finalized November 2023',
+    tags:['bd-npr','bd-add','bd-fdic','bd-capital','bd-final'], tl:['FINAL','↑ ADDITIVE','FDIC','CAPITAL','FINAL'],
+    impact:65, il:'MOD', url:'https://www.fdic.gov/news/press-releases/2023/pr23037.html',
+    summary:'This NPR implemented a special assessment on banks with significant uninsured deposits to recover the $18.5B FDIC Deposit Insurance Fund cost of protecting SVB and Signature Bank depositors — effectively a <strong>retrospective capital surcharge on institutions whose deposit structure created systemic risk requiring government intervention</strong>. The assessment base was calculated from uninsured deposits as of December 31, 2022, targeting precisely the institutions that benefited from the deposit insurance guarantee extension. <em>The rule also establishes important precedent — future uninsured deposit runs create capital obligations for surviving institutions, which may modestly deter the excessive uninsured deposit concentration that amplified the 2023 failures</em>.',
+  },
+  { id:'N15', section:'npr', dir:'add', agency:'fdic', warn:false, color:'#9eb87e',
+    title:'Corporate Governance and Risk Management Guidelines — $10B+ Banks',
+    source:'FDIC · Proposed October 2023 · Effectively abandoned post-administration transition',
+    tags:['bd-npr','bd-add','bd-fdic','bd-capital'], tl:['NPR','↑ ADDITIVE','FDIC','CAPITAL'],
+    impact:62, il:'MOD', url:'https://www.federalregister.gov/documents/2023/12/04/2023-26510/guidelines-establishing-standards-for-corporate-governance-and-risk-management-for-covered',
+    summary:'This FDIC NPR proposed binding governance and risk management guidelines for all FDIC-supervised banks with $10B+ in assets, requiring boards to establish explicit capital adequacy frameworks — translating enhanced prudential standards down to the mid-size tier. The proposal recognized that <strong>SVB\'s board had failed to understand or monitor the bank\'s capital-to-interest-rate-risk exposure</strong> because no binding standards required them to, seeking to fill the governance gap with mandatory risk management expectations. The rule was effectively abandoned post-administration transition — <em>meaning the governance gap that allowed SVB-style capital mismanagement to go undetected by the board remains open across the entire $10B–$250B bank tier</em>.',
+  },
+  { id:'N16', section:'npr', dir:'dreg', agency:'fdic', warn:false, color:'#c87e3a',
+    title:'CRA 2023 Final Rule Rescission — Revert to 1995 Framework (Joint)',
+    source:'FDIC + OCC + Federal Reserve · Proposed June 2025 · Pending',
+    tags:['bd-npr','bd-dereg','bd-fdic','bd-joint','bd-pending'], tl:['NPR','↓ DEREG','INTERAGENCY','PENDING'],
+    impact:45, il:'LOW-MOD', url:'https://www.fdic.gov/news/speeches/2025/oversight-prudential-regulators',
+    summary:'This joint NPR proposes rescinding the 2023 CRA final rule and reverting to the 1995 framework, eliminating modernized assessment areas and updated performance metrics. The capital connection is indirect: <strong>CRA performance ratings affect bank merger approvals and charter applications</strong>, meaning CRA compliance effectively conditions capital deployment on community benefit assessments — weakening CRA removes this constraint on how capital is deployed geographically. <em>The reversal is expected to modestly accelerate M&A activity by removing friction from merger approvals, with secondary capital implications from the increased consolidation that typically follows</em>.',
+  },
+  { id:'N17', section:'npr', dir:'add', agency:'fdic', warn:false, color:'#9eb87e',
+    title:'GENIUS Act Stablecoin Application Framework (FDIC)',
+    source:'FDIC · Proposed December 2025 · Pending',
+    tags:['bd-npr','bd-add','bd-fdic','bd-capital','bd-pending'], tl:['NPR','↑ ADDITIVE','FDIC','CAPITAL','PENDING'],
+    impact:55, il:'MOD', url:'https://blog.freshfields.us/post/102lymd/2025-bank-regulatory-roundup-and-what-to-look-for-in-2026',
+    summary:'This FDIC NPR establishes the application framework for FDIC-supervised banks seeking to issue payment stablecoins under the July 2025 GENIUS Act, creating the <strong>first formal capital and reserve requirements specifically designed for bank-issued digital assets</strong>. Stablecoin issuance introduces a form of narrow banking within the insured depository system: reserve assets must be maintained at high quality, creating a capital-like constraint on how stablecoin proceeds can be deployed that is separate from and potentially additive to traditional CET1 requirements. This is one of the few genuinely additive capital actions in the 2025 deregulatory landscape — <em>establishing new capital-adjacent requirements rather than rolling back existing ones, and representing the forward edge of a new risk category that existing Basel frameworks were not designed to capture</em>.',
+  },
+  { id:'N18', section:'npr', dir:'add', agency:'fdic', warn:false, color:'#9eb87e',
+    title:'Basel III Re-proposal — Simplified "Single Stack" (Expected H1 2026)',
+    source:'Federal Reserve + OCC + FDIC · Expected H1 2026 · Not yet issued',
+    tags:['bd-npr','bd-add','bd-fed','bd-joint','bd-capital'], tl:['FORTHCOMING','↑ ADDITIVE (REDUCED)','INTERAGENCY','CAPITAL'],
+    impact:55, il:'MOD', url:'https://www.fdic.gov/news/speeches/2026/update-reforms-regulatory-toolkit',
+    summary:'Agency leadership has signaled a Basel III reproposal adopting a simplified "single stack" approach, reducing the aggregate capital uplift from the original 19% to approximately <strong>5–8% for GSIBs with domestic regional and community banks largely exempt</strong>. The simplified version will remove the "gold-plating" in mortgage and retail lending risk weights that drove much of the 2023 proposal\'s capital increase. The reproposal is expected to retain the requirement that Category III–IV banks include unrealized securities losses in regulatory capital — <em>the specific capital fix most directly responsive to SVB\'s failure mode — meaning some of what SVB needed will finally arrive at roughly one-third the originally proposed capital increase</em>.',
+  },
+  { id:'N19', section:'npr', dir:'dreg', agency:'fdic', warn:true, color:'#c87e3a',
+    title:'EGRRCPA (2018) — Dodd-Frank Rollback Implementation (Historical)',
+    source:'Federal Reserve + OCC + FDIC · Final 2019 · Historical — causally linked to SVB failure',
+    tags:['bd-npr','bd-dereg','bd-fdic','bd-joint','bd-capital','bd-warn','bd-final'], tl:['FINAL (HIST.)','↓ DEREG','INTERAGENCY','CAPITAL','⚠ CAUSAL — SVB'],
+    impact:100, il:'CRITICAL', url:'https://www.fdic.gov/system/files/2024-06/2023-regulatory-capital-rule-large-banking-organizations-3064-af29-c-278.pdf',
+    summary:'The EGRRCPA implementing rules raised the Dodd-Frank enhanced prudential standards threshold from $50B to $250B in total assets, removing mandatory <strong>annual capital stress testing, full LCR compliance, and enhanced resolution planning</strong> from mid-size banks including SVB. This is the only rule in the dataset with a government-documented causal link to a subsequent banking crisis: the Federal Reserve\'s 2023 SVB review explicitly cites the tailoring rules as a contributing factor. <em>The 2025 expansion of the heightened standards threshold from $50B to $700B applies identical logic across a dramatically larger portion of the banking system, potentially setting up an equivalent causal chain in a future crisis review</em>.',
+  },
+  { id:'N20', section:'npr', dir:'add', agency:'fdic', warn:false, color:'#9eb87e',
+    title:'Resolution Planning — IDI Amendments and Failed-Bank Process Reform',
+    source:'FDIC · Under development 2025–2026 · Expected 2026',
+    tags:['bd-npr','bd-add','bd-fdic','bd-capital'], tl:['FORTHCOMING','↑ ADDITIVE','FDIC','CAPITAL'],
+    impact:48, il:'MOD', url:'https://blog.freshfields.us/post/102lymd/2025-bank-regulatory-roundup-and-what-to-look-for-in-2026',
+    summary:'FDIC Chairman Hill has indicated development of amendments to the IDI resolution planning rule, addressing lessons from the 2023 failures — specifically the <strong>speed of uninsured deposit runs enabled by mobile banking</strong> and the difficulty of marketing failed banks when deposits can exit faster than traditional M&A processes. Resolution planning is the capital policy of last resort: it determines how much loss banks must pre-position for the scenario where capital is fully depleted. <em>These reforms are pragmatic rather than precautionary — they address how capital failures are resolved rather than prevented, making them a downstream response to the 2023 crisis rather than upstream prevention of the next one</em>.',
+  },
+  { id:'N21', section:'npr', dir:'dreg', agency:'fdic', warn:false, color:'#c87e3a',
+    title:'Crypto Activity Guidance Rescission — SAB 121 and Related Guidance Withdrawn',
+    source:'FDIC + OCC + Federal Reserve · Final — 2025',
+    tags:['bd-npr','bd-dereg','bd-fdic','bd-joint','bd-capital','bd-final'], tl:['FINAL','↓ DEREG','INTERAGENCY','CAPITAL','FINAL'],
+    impact:62, il:'MOD-HIGH', url:'https://blog.freshfields.us/post/102lymd/2025-bank-regulatory-roundup-and-what-to-look-for-in-2026',
+    summary:'The rescission of SAB 121 removes the requirement that banks record digital assets held for customers as <strong>on-balance-sheet liabilities</strong> — eliminating the capital cost that had made crypto custody economically unattractive. Banks can now offer crypto custody services without the on-balance-sheet capital charge, dramatically expanding the capital economics of crypto banking. <em>The capital risk implication is the introduction of contingent liabilities — digital asset custody — whose risk profile is not captured in existing Basel risk weights, meaning banks may accumulate significant operational and counterparty risk with capital charges calibrated to traditional rather than digital-asset custody volatility</em>.',
+  },
+  { id:'N22', section:'npr', dir:'add', agency:'fed', warn:false, color:'#8b9fce',
+    title:'Climate Risk ANPR (2021, Withdrawn 2025)',
+    source:'Federal Reserve · ANPR 2021 · Rescinded early 2025',
+    tags:['bd-npr','bd-add','bd-fed','bd-capital','bd-withdrawn'], tl:['ANPR','↑ ADDITIVE','FED','WITHDRAWN'],
+    impact:40, il:'LOW-MOD', url:'https://www.federalreserve.gov/supervisionreg.htm',
+    summary:'The 2021 Federal Reserve climate risk ANPR sought comment on integrating physical and transition climate risks into bank capital requirements, recognizing that climate-related financial losses are not captured in existing Basel credit risk frameworks. Had it progressed, it would have introduced capital buffers for climate-exposed loan portfolios, particularly concentrated real estate lending in high-risk geographies. The ANPR was rescinded in early 2025 — <em>removing the regulatory foundation for any future capital adjustment for climate risk despite evidence that climate-related bank losses are already materializing in specific geographic CRE concentrations</em>.',
+  },
+  { id:'N23', section:'npr', dir:'dreg', agency:'fed', warn:false, color:'#d04838',
+    title:'Volcker Rule Simplification — Proprietary Trading Scope Narrowing',
+    source:'Federal Reserve + OCC + FDIC + SEC + CFTC · Final 2020',
+    tags:['bd-npr','bd-dereg','bd-fed','bd-joint','bd-capital','bd-final'], tl:['FINAL RULE','↓ DEREG','INTERAGENCY','CAPITAL'],
+    impact:65, il:'MOD', url:'https://www.federalreserve.gov/supervisionreg/reghist.htm',
+    summary:'The 2020 Volcker Rule simplification narrowed the definition of proprietary trading and relaxed the compliance framework — allowing banks to hold larger short-term trading positions without the capital and compliance costs the original rule imposed. The original Volcker Rule functioned as an indirect capital conservation mechanism: <strong>by prohibiting swing-for-the-fences proprietary trading, it limited potential for sudden large capital losses from trading book positions</strong>, supplementing formal capital requirements with an activity restriction on the most capital-destructive activities. <em>The simplification restores some proprietary risk-taking capacity within the formal capital framework — the exact pattern the 2017 Better Markets report identified as characteristic of deregulatory cycles that precede capital crises</em>.',
+  },
+  { id:'N24', section:'npr', dir:'dreg', agency:'fed', warn:false, color:'#d04838',
+    title:'Reputation Risk Codification — Fed Removes from Bank Examination (Feb 2026)',
+    source:'Federal Reserve · Proposed February 23, 2026 · Pending',
+    tags:['bd-npr','bd-dereg','bd-fed','bd-pending'], tl:['NPR','↓ DEREG','FED','PENDING'],
+    impact:55, il:'MOD', url:'https://www.federalreserve.gov/supervisionreg.htm',
+    summary:'Following its earlier guidance, the Federal Reserve in February 2026 issued a formal NPR to codify the removal of reputation risk from examination programs — providing banks legal certainty that examiners cannot take adverse action based on reputational concerns. The capital connection mirrors the OCC-FDIC reputation risk NPR: reputation risk assessments historically provided a mechanism to flag emerging risk concentrations before they materialized in formal capital metrics. <strong>Codifying the removal across all three agencies makes the early-warning function permanently unavailable</strong> — <em>meaning capital-threatening concentrations in digital assets or crypto-adjacent activities can only be addressed once they appear in hard financial metrics, by which point the capital impact may already be under way</em>.',
+  },
+  { id:'N25', section:'npr', dir:'add', agency:'fdic', warn:false, color:'#9eb87e',
+    title:'GENIUS Act Prudential Requirements — Capital, Liquidity &amp; Reserve Standards',
+    source:'FDIC + OCC + Federal Reserve · Expected H1 2026 · Not yet issued',
+    tags:['bd-npr','bd-add','bd-fdic','bd-joint','bd-capital'], tl:['FORTHCOMING','↑ ADDITIVE','INTERAGENCY','CAPITAL'],
+    impact:58, il:'MOD', url:'https://blog.freshfields.us/post/102lymd/2025-bank-regulatory-roundup-and-what-to-look-for-in-2026',
+    summary:'Following the December 2025 application framework NPR, the agencies are expected to issue core GENIUS Act prudential rules establishing capital requirements, liquidity standards, and reserve asset diversification requirements for bank-issued payment stablecoins — creating the <strong>first-ever capital framework for a tokenized monetary instrument held within the insured depository system</strong>. Stablecoins combine instant redemption characteristics with counterparty risk of money market instruments and operational risk of blockchain technology — a genuinely novel risk combination existing Basel frameworks were not designed to handle. <em>If the stablecoin market reaches significant scale, the capital treatment established by these rules could become one of the most consequential additions to the capital framework since Dodd-Frank</em>.',
+  },
+  { id:'N26', section:'npr', dir:'dreg', agency:'occ', warn:false, color:'#c9a84c',
+    title:'OCC Preemption Rules — Escrow and Real Estate Lending (December 2025)',
+    source:'OCC · Two NPRs issued December 23, 2025 · Pending',
+    tags:['bd-npr','bd-dereg','bd-occ','bd-pending'], tl:['NPR','↓ DEREG','OCC','PENDING'],
+    impact:40, il:'LOW-MOD', url:'https://www.gibsondunn.com/monthly-bank-regulatory-report-december-2025/',
+    summary:'The OCC issued two NPRs for national banks and federal savings associations offering escrow accounts in connection with real estate lending, proposing to expand OCC preemption authority over state-level escrow regulation. The capital implication is indirect: escrow account rules affect how mortgage servicing is conducted and how banks account for escrow-related liabilities, with downstream effects on mortgage loan servicing rights — an asset class with specific capital treatment under Basel III. <em>National banks gaining broader preemption could expand mortgage market share, increasing aggregate real estate capital concentration at a moment when CRE stress is already an elevated concern across the regional banking sector</em>.',
+  },
+  { id:'N27', section:'npr', dir:'add', agency:'fdic', warn:false, color:'#9eb87e',
+    title:'FDIC Inflation-Indexed Regulatory Threshold Adjustments',
+    source:'FDIC · Proposed 2025 · Multi-phase effort · Pending',
+    tags:['bd-npr','bd-add','bd-fdic','bd-pending'], tl:['NPR','↑ ADDITIVE','FDIC','PENDING'],
+    impact:30, il:'LOW', url:'https://www.fdic.gov/news/financial-institution-letters/2025/notice-proposed-rulemaking-adjusting-and-indexing-certain',
+    summary:'This FDIC NPR proposes inflation-indexing 37 asset-based thresholds across audit, internal control, and reporting requirements, with subsequent automatic adjustments every two years. While framed as technical modernization, <strong>thresholds that have remained static as bank assets grow pull more institutions into higher-requirement tiers</strong>, meaning inflation-adjusted thresholds effectively represent a modest reduction in regulatory burden at the margin for institutions that have grown near each threshold. This is one of the few NPRs that cuts across the political divide — both deregulatory and additive administrations periodically adjust thresholds for inflation — but the direction still carries real capital implications for institutions operating near each threshold.',
+  },
+  { id:'N28', section:'npr', dir:'add', agency:'fed', warn:false, color:'#8b9fce',
+    title:'Cyber Incident Notification Rule — 36-Hour Reporting Requirement',
+    source:'Federal Reserve + OCC + FDIC · Final April 2022',
+    tags:['bd-npr','bd-add','bd-fed','bd-joint','bd-final'], tl:['FINAL RULE','↑ ADDITIVE','INTERAGENCY','FINAL'],
+    impact:35, il:'LOW', url:'https://www.federalreserve.gov/supervisionreg/reghist.htm',
+    summary:'This interagency final rule requires banking organizations to notify their primary federal regulator within 36 hours of discovering a cyber incident that materially disrupts operations, recognizing that <strong>operational risk from cyber events is one of the most rapidly growing potential capital loss categories</strong>. Ransomware attacks can impair bank operations, trigger litigation or regulatory penalties, and directly erode capital — early notification enables supervisory coordination before capital impacts compound. <em>One of the few 2022 rules that has not been rolled back, reflecting bipartisan agreement that cyber risk disclosure is a minimum supervisory baseline even in a deregulatory environment</em>.',
+  },
+];
+
+/* ════════════════════════════════
+   PAGE 1: NEWS RENDER + FILTER
+════════════════════════════════ */
+let nActiveType = 'all', nWarnOnly = false, nSearchTerm = '';
+
+function impColor(v){ return v>=90?'#d04838':v>=75?'#c9a84c':v>=55?'#8b9fce':'#4a505e' }
+
+function buildNewsCard(art) {
+  const c = impColor(art.impact);
+  const typeStyle = art.type === 'article'
+    ? 'border-color:rgba(139,159,206,.35);color:var(--purple);background:rgba(139,159,206,.06)'
+    : 'border-color:rgba(158,184,126,.35);color:var(--grn);background:rgba(158,184,126,.06)';
+  return `<div class="news-card" id="nc-${art.id}" data-type="${art.type}" data-warn="${art.warn}"
+    data-text="${(art.title+' '+art.source+' '+art.author+' '+(art.summary||'')).toLowerCase().replace(/<[^>]+>/g,' ')}"
+    style="border-top-color:${art.color}">
+    <div class="nc-head" onclick="toggleCard('nc-${art.id}')">
+      <div class="nc-type-row">
+        <span class="nc-type" style="${typeStyle}">${art.ttype}</span>
+        ${art.warn ? '<span class="nc-warn">⚠ CRASH WARNING</span>' : ''}
+      </div>
+      <div class="nc-title">${art.title}</div>
+      <div class="nc-source">${art.source}</div>
+      <div class="nc-impact-row">
+        <span class="nc-imp-lbl">Capital Impact</span>
+        <div class="nc-imp-track"><div class="nc-imp-fill" style="width:${art.impact}%;background:${c}"></div></div>
+        <span class="nc-imp-val" style="color:${c}">${art.il}</span>
+      </div>
+    </div>
+    <div class="nc-body" id="nb-${art.id}">
+      <div class="nc-summary">
+        ${art.summary}
+        <div class="nc-foot">
+          <a class="nc-link" href="${art.url}" target="_blank" rel="noreferrer">↗ Read source</a>
+          <span class="nc-author">Author: ${art.author}</span>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function toggleCard(id) {
+  document.getElementById('nb-'+id.replace('nc-','nb-')).classList.toggle('open');
+  const body = document.getElementById(id.replace('nc-','nb-'));
+  if (body) body.classList.toggle('open');
+  // fix: use the actual element id
+  const el = document.getElementById(id);
+  const bodyEl = el ? el.querySelector('.nc-body') : null;
+  if (bodyEl) bodyEl.classList.toggle('open');
+}
+
+function renderNews() {
+  const arts = ARTICLES.filter(a => a.type === 'article').sort((a,b)=>b.impact-a.impact);
+  const coms = ARTICLES.filter(a => a.type === 'commentary').sort((a,b)=>b.impact-a.impact);
+  document.getElementById('ng-article').innerHTML = arts.map(buildNewsCard).join('');
+  document.getElementById('ng-commentary').innerHTML = coms.map(buildNewsCard).join('');
+}
+
+function applyNewsFilter() {
+  let count = 0;
+  ARTICLES.forEach(art => {
+    const el = document.getElementById('nc-'+art.id);
+    if (!el) return;
+    let show = true;
+    if (nActiveType !== 'all' && art.type !== nActiveType) show = false;
+    if (show && nWarnOnly && !art.warn) show = false;
+    if (show && nSearchTerm && !(el.dataset.text||'').includes(nSearchTerm)) show = false;
+    el.classList.toggle('hidden', !show);
+    if (show) count++;
+  });
+  document.getElementById('n-rc').textContent = count + ' item' + (count !== 1 ? 's' : '');
+  const artVis = document.querySelectorAll('#ng-article .news-card:not(.hidden)').length > 0;
+  const comVis = document.querySelectorAll('#ng-commentary .news-card:not(.hidden)').length > 0;
+  document.getElementById('news-cards-articles').style.display = artVis ? '' : 'none';
+  document.getElementById('news-cards-commentary').style.display = comVis ? '' : 'none';
+}
+
+function nFilter(v, btn) {
+  nActiveType = v;
+  document.querySelectorAll('#nt-all,#nt-art,#nt-com').forEach(b => b.classList.remove('sec-on'));
+  btn.classList.add('sec-on');
+  applyNewsFilter();
+}
+function nWarn(btn) { nWarnOnly = !nWarnOnly; btn.classList.toggle('on', nWarnOnly); applyNewsFilter(); }
+function nSearch(v) { nSearchTerm = v.trim().toLowerCase(); applyNewsFilter(); }
+
+/* ════════════════════════════════
+   PAGE 2: CHARTS
+════════════════════════════════ */
+Chart.defaults.font.family = "'IBM Plex Mono', monospace";
+Chart.defaults.font.size = 10;
+Chart.defaults.color = '#7a8090';
+
+const YEARS = ['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024','2025'];
+const TRANS = ['2017','2021'];
+
+const D = {
+  occ:  { add:[12,11,4,2,2,2,8,9,14,11,2],  dreg:[1,1,5,8,7,6,2,1,1,2,9],  addC:'rgba(126,184,181,V)', dregC:'rgba(201,168,76,V)',   ar:'#7eb8b5', dr:'#c9a84c' },
+  fed:  { add:[15,13,5,2,2,4,10,11,17,14,3], dreg:[1,1,4,8,8,5,2,1,1,1,8],  addC:'rgba(139,159,206,V)', dregC:'rgba(208,72,56,V)',    ar:'#8b9fce', dr:'#d04838' },
+  fdic: { add:[11,11,5,4,3,4,8,10,13,13,3],  dreg:[2,2,7,8,6,5,2,2,1,2,7],  addC:'rgba(158,184,126,V)', dregC:'rgba(200,126,58,V)',   ar:'#9eb87e', dr:'#c87e3a' },
+};
+const CR = {};
+let all3View = 'both';
+
+function showChartPanel(id, btn) {
+  document.querySelectorAll('.chart-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('cpanel-'+id).classList.add('active');
+  document.querySelectorAll('.chart-nav .cb').forEach(b => b.classList.remove('sec-on'));
+  btn.classList.add('sec-on');
+}
+
+function mkBar(cid, addData, dregData, addBase, dregBase) {
+  const ctx = document.getElementById(cid);
+  if (!ctx || CR[cid]) return;
+  const a = YEARS.map(y => TRANS.includes(y) ? addBase.replace('V','0.3') : addBase.replace('V','0.8'));
+  const d = YEARS.map(y => TRANS.includes(y) ? dregBase.replace('V','0.3') : dregBase.replace('V','0.8'));
+  CR[cid] = new Chart(ctx, {
+    type:'bar',
+    data:{ labels:YEARS, datasets:[
+      { label:'Additive',      data:addData,  backgroundColor:a, borderWidth:0, borderRadius:2 },
+      { label:'Deregulatory',  data:dregData, backgroundColor:d, borderWidth:0, borderRadius:2 },
+    ]},
+    options:{
+      responsive:true, interaction:{mode:'index',intersect:false},
+      scales:{ x:{stacked:true,grid:{color:'#E8ECF2'},ticks:{color:'#9EA8B3'}}, y:{stacked:true,grid:{color:'#E8ECF2'},ticks:{color:'#9EA8B3'}} },
+      plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#FFFFFF',borderColor:'#D8DCE6',borderWidth:1,
+        callbacks:{ footer:items=>{ const a=items.find(i=>i.datasetIndex===0)?.parsed.y||0; const d=items.find(i=>i.datasetIndex===1)?.parsed.y||0; const adm={'2015':'Obama','2016':'Obama','2017':'→ Trump 1.0','2018':'Trump 1.0','2019':'Trump 1.0','2020':'Trump 1.0','2021':'→ Biden','2022':'Biden','2023':'Biden (post-SVB)','2024':'Biden','2025':'Trump 2.0'}; return `Net: ${a-d>=0?'+':''}${a-d} | Ratio ${d>0?(a/d).toFixed(1):'∞'}:1 | ${adm[items[0].label]}`; } } } }
+    }
+  });
+}
+
+function mkRatio(cid, addData, dregData, ac, dc) {
+  const ctx = document.getElementById(cid);
+  if (!ctx || CR[cid]) return;
+  const ratios = addData.map((a,i) => +(a/Math.max(dregData[i],1)).toFixed(2));
+  CR[cid] = new Chart(ctx, {
+    type:'line',
+    data:{ labels:YEARS, datasets:[
+      { data:ratios, borderWidth:2, segment:{borderColor:ctx=>ratios[ctx.p0DataIndex]>=1?ac:dc}, pointBackgroundColor:ratios.map(v=>v>=1?ac:dc), pointRadius:4, tension:0.3, fill:false, label:'Ratio' },
+      { data:new Array(YEARS.length).fill(1), borderColor:'rgba(255,255,255,0.1)', borderDash:[4,4], borderWidth:1, pointRadius:0, fill:false, label:'Balance' }
+    ]},
+    options:{ responsive:true, scales:{ x:{grid:{color:'#E8ECF2'},ticks:{color:'#9EA8B3'}}, y:{grid:{color:'#E8ECF2'},ticks:{color:'#9EA8B3',callback:v=>v+':1'},min:0} }, plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#FFFFFF',borderColor:'#D8DCE6',borderWidth:1,filter:i=>i.datasetIndex===0, callbacks:{label:c=>`Ratio: ${c.parsed.y}:1 — ${c.parsed.y>=1?'tightening':'deregulatory'}`} } } }
+  });
+}
+
+function buildNetStrip(agKey) {
+  const strip = document.getElementById(agKey+'-net');
+  if (!strip || strip.children.length > 0) return;
+  const add = D[agKey].add, dreg = D[agKey].dreg;
+  YEARS.forEach((yr,i) => {
+    const net = add[i]-dreg[i], col = net>=0?'#7eb8b5':'#c9a84c';
+    strip.innerHTML += `<div class="net-box" style="border-left-color:${col}"><div class="net-year" style="color:${col}">${yr}</div><div class="net-lbl">+${add[i]} / −${dreg[i]}</div><div class="net-val" style="color:${col}">${net>=0?'↑':''} ${net>=0?'+':''}${net}</div></div>`;
+  });
+}
+
+function buildAll3Bar() {
+  const ctx = document.getElementById('all3-bar');
+  if (!ctx || CR['all3-bar']) return;
+  const alpha = y => TRANS.includes(y) ? 0.3 : 0.85;
+  const allDS = [
+    { label:'OCC — Additive',      data:D.occ.add,   backgroundColor:YEARS.map(y=>`rgba(126,184,181,${alpha(y)})`), borderWidth:0, borderRadius:2 },
+    { label:'OCC — Deregulatory',  data:D.occ.dreg,  backgroundColor:YEARS.map(y=>`rgba(201,168,76,${alpha(y)})`),  borderWidth:0, borderRadius:2 },
+    { label:'Fed — Additive',      data:D.fed.add,   backgroundColor:YEARS.map(y=>`rgba(139,159,206,${alpha(y)})`), borderWidth:0, borderRadius:2 },
+    { label:'Fed — Deregulatory',  data:D.fed.dreg,  backgroundColor:YEARS.map(y=>`rgba(208,72,56,${alpha(y)})`),   borderWidth:0, borderRadius:2 },
+    { label:'FDIC — Additive',     data:D.fdic.add,  backgroundColor:YEARS.map(y=>`rgba(158,184,126,${alpha(y)})`), borderWidth:0, borderRadius:2 },
+    { label:'FDIC — Deregulatory', data:D.fdic.dreg, backgroundColor:YEARS.map(y=>`rgba(200,126,58,${alpha(y)})`),  borderWidth:0, borderRadius:2 },
+  ];
+  let ds = _getAll3Datasets(allDS);
+  CR['all3-bar'] = new Chart(ctx, {
+    type:'bar',
+    data:{ labels:YEARS, datasets:ds },
+    options:{
+      responsive:true, interaction:{mode:'index',intersect:false},
+      scales:{ x:{grid:{color:'#E8ECF2'},ticks:{color:'#9EA8B3'}}, y:{grid:{color:'#E8ECF2'},ticks:{color:'#9EA8B3'}, title:{display:true,text:'NPR count',color:'#9EA8B3',font:{size:9}}} },
+      plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#FFFFFF',borderColor:'#D8DCE6',borderWidth:1, callbacks:{ footer:items=>{ const adm={'2015':'Obama','2016':'Obama','2017':'→ Trump 1.0','2018':'Trump 1.0','2019':'Trump 1.0','2020':'Trump 1.0','2021':'→ Biden','2022':'Biden','2023':'Biden (post-SVB)','2024':'Biden','2025':'Trump 2.0'}; return adm[items[0]?.label]||''; } } } }
+    }
+  });
+}
+
+function _getAll3Datasets(allDS) {
+  const alpha = y => TRANS.includes(y) ? 0.3 : 0.85;
+  if (all3View === 'add')  return [allDS[0],allDS[2],allDS[4]];
+  if (all3View === 'dreg') return [allDS[1],allDS[3],allDS[5]];
+  if (all3View === 'net') {
+    const on = YEARS.map((_,i)=>D.occ.add[i]-D.occ.dreg[i]);
+    const fn = YEARS.map((_,i)=>D.fed.add[i]-D.fed.dreg[i]);
+    const dn = YEARS.map((_,i)=>D.fdic.add[i]-D.fdic.dreg[i]);
+    return [
+      { label:'OCC',  data:on, backgroundColor:YEARS.map((y,i)=>on[i]>=0?`rgba(126,184,181,${alpha(y)})`:  `rgba(201,168,76,${alpha(y)})`),  borderWidth:0, borderRadius:2 },
+      { label:'Fed',  data:fn, backgroundColor:YEARS.map((y,i)=>fn[i]>=0?`rgba(139,159,206,${alpha(y)})`:  `rgba(208,72,56,${alpha(y)})`),   borderWidth:0, borderRadius:2 },
+      { label:'FDIC', data:dn, backgroundColor:YEARS.map((y,i)=>dn[i]>=0?`rgba(158,184,126,${alpha(y)})`:  `rgba(200,126,58,${alpha(y)})`),  borderWidth:0, borderRadius:2 },
+    ];
+  }
+  return allDS;
+}
+
+function setAll3View(mode, btn) {
+  all3View = mode;
+  document.querySelectorAll('#a3-both,#a3-add,#a3-dreg,#a3-net').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if (CR['all3-bar']?.destroy) { CR['all3-bar'].destroy(); delete CR['all3-bar']; }
+  buildAll3Bar();
+}
+
+function buildAll3Ratio() {
+  const ctx = document.getElementById('all3-ratio');
+  if (!ctx || CR['all3-ratio']) return;
+  const or = D.occ.add.map((a,i)=>+(a/Math.max(D.occ.dreg[i],1)).toFixed(2));
+  const fr = D.fed.add.map((a,i)=>+(a/Math.max(D.fed.dreg[i],1)).toFixed(2));
+  const dr = D.fdic.add.map((a,i)=>+(a/Math.max(D.fdic.dreg[i],1)).toFixed(2));
+  CR['all3-ratio'] = new Chart(ctx, {
+    type:'line',
+    data:{ labels:YEARS, datasets:[
+      { label:'OCC',  data:or, borderColor:'#7eb8b5', pointBackgroundColor:or.map(v=>v>=1?'#7eb8b5':'#c9a84c'), pointRadius:4, borderWidth:2, tension:0.3, fill:false },
+      { label:'Fed',  data:fr, borderColor:'#8b9fce', pointBackgroundColor:fr.map(v=>v>=1?'#8b9fce':'#d04838'), pointRadius:4, borderWidth:2, tension:0.3, fill:false },
+      { label:'FDIC', data:dr, borderColor:'#9eb87e', pointBackgroundColor:dr.map(v=>v>=1?'#9eb87e':'#c87e3a'), pointRadius:4, borderWidth:2, tension:0.3, fill:false },
+      { data:new Array(YEARS.length).fill(1), borderColor:'rgba(255,255,255,0.1)', borderDash:[5,5], borderWidth:1, pointRadius:0, fill:false, label:'Balance' }
+    ]},
+    options:{ responsive:true, interaction:{mode:'index',intersect:false},
+      scales:{ x:{grid:{color:'#E8ECF2'},ticks:{color:'#9EA8B3'}}, y:{grid:{color:'#E8ECF2'},ticks:{color:'#9EA8B3',callback:v=>v+':1'},min:0,suggestedMax:18, title:{display:true,text:'Add:Dereg ratio',color:'#9EA8B3',font:{size:9}}} },
+      plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#FFFFFF',borderColor:'#D8DCE6',borderWidth:1,filter:i=>i.datasetIndex<3, callbacks:{label:c=>`${['OCC','Fed','FDIC'][c.datasetIndex]}: ${c.parsed.y}:1 — ${c.parsed.y>=1?'tightening':'deregulatory'}`} } } }
+  });
+}
+
+function buildAll3Net() {
+  const ctx = document.getElementById('all3-net');
+  if (!ctx || CR['all3-net']) return;
+  const on = D.occ.add.map((a,i)=>a-D.occ.dreg[i]);
+  const fn = D.fed.add.map((a,i)=>a-D.fed.dreg[i]);
+  const dn = D.fdic.add.map((a,i)=>a-D.fdic.dreg[i]);
+  CR['all3-net'] = new Chart(ctx, {
+    type:'bar',
+    data:{ labels:YEARS, datasets:[
+      { label:'OCC',  data:on, backgroundColor:YEARS.map((_,i)=>on[i]>=0?'rgba(126,184,181,.75)':'rgba(201,168,76,.75)'),  borderWidth:0, borderRadius:2 },
+      { label:'Fed',  data:fn, backgroundColor:YEARS.map((_,i)=>fn[i]>=0?'rgba(139,159,206,.75)':'rgba(208,72,56,.75)'),   borderWidth:0, borderRadius:2 },
+      { label:'FDIC', data:dn, backgroundColor:YEARS.map((_,i)=>dn[i]>=0?'rgba(158,184,126,.75)':'rgba(200,126,58,.75)'),  borderWidth:0, borderRadius:2 },
+    ]},
+    options:{ responsive:true, interaction:{mode:'index',intersect:false},
+      scales:{ x:{grid:{color:'#E8ECF2'},ticks:{color:'#9EA8B3'}}, y:{grid:{color:'#E8ECF2'},ticks:{color:'#9EA8B3'}, title:{display:true,text:'Net NPRs (add − dereg)',color:'#9EA8B3',font:{size:9}}} },
+      plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#FFFFFF',borderColor:'#D8DCE6',borderWidth:1, callbacks:{label:c=>`${['OCC','Fed','FDIC'][c.datasetIndex]}: ${c.parsed.y>=0?'+':''}${c.parsed.y} (${c.parsed.y>=0?'tightening':'deregulatory'})`} } }
+    }
+  });
+}
+
+function buildHeatmap() {
+  const wrap = document.getElementById('heatmap');
+  if (!wrap || wrap.children.length > 0) return;
+  const agencies = [['occ','OCC'],['fed','Fed'],['fdic','FDIC']];
+  const table = document.createElement('table');
+  table.style.cssText = 'border-collapse:collapse;font-family:"IBM Plex Mono",monospace;font-size:10px;width:100%';
+  const hr = document.createElement('tr');
+  hr.innerHTML = '<th style="padding:6px 10px;text-align:left;color:#4a505e;background:#1c1f24;border:1px solid #272b33">Agency</th>' +
+    YEARS.map(y=>`<th style="padding:6px 10px;text-align:center;color:#4a505e;background:#1c1f24;border:1px solid #272b33">${y}</th>`).join('');
+  table.appendChild(hr);
+  agencies.forEach(([ag,lbl]) => {
+    const nets = YEARS.map((_,i)=>D[ag].add[i]-D[ag].dreg[i]);
+    const maxA = Math.max(...nets.map(Math.abs),1);
+    const tr = document.createElement('tr');
+    let cells = `<td style="padding:7px 10px;font-weight:700;color:#e2e4e8;background:#14161a;border:1px solid #272b33">${lbl}</td>`;
+    nets.forEach(n=>{
+      const int = Math.min(Math.abs(n)/maxA,1);
+      const a = (0.15+int*0.6).toFixed(2);
+      const bg = n>0?`rgba(90,136,200,${a})`:n<0?`rgba(201,168,76,${a})`:'#F4F6FA';
+      const tc = n>0?'#7eb8b5':n<0?'#c9a84c':'#4a505e';
+      cells += `<td style="padding:7px 10px;text-align:center;background:${bg};color:${tc};font-weight:700;border:1px solid #272b33">${n>=0?'+':''}${n}</td>`;
+    });
+    tr.innerHTML = cells; table.appendChild(tr);
+  });
+  wrap.appendChild(table);
+}
+
+function buildAllCharts() {
+  ['occ','fed','fdic'].forEach(ag => {
+    buildNetStrip(ag);
+    mkBar(ag+'-bar', D[ag].add, D[ag].dreg, D[ag].addC, D[ag].dregC);
+    mkRatio(ag+'-ratio', D[ag].add, D[ag].dreg, D[ag].ar, D[ag].dr);
+  });
+  buildAll3Bar();
+  buildAll3Ratio();
+  buildAll3Net();
+  buildHeatmap();
+}
+
+/* ════════════════════════════════
+   PAGE 3: REGULATORY ANALYSIS RENDER + FILTER
+════════════════════════════════ */
+let raActiveSec='all', raActiveDir='all', raActiveAg='all', raWarnOnly=false, raSearch='';
+
+function ic(v){ return v>=90?'#d04838':v>=75?'#c9a84c':v>=55?'#8b9fce':'#4a505e' }
+function dirArr(d){ return d==='add'?'<span style="color:#7eb8b5;font-size:13px">↑</span>':d==='dreg'?'<span style="color:#c9a84c;font-size:13px">↓</span>':'<span style="color:#4a505e;font-size:11px">—</span>' }
+function bdgs(tags,tl){ return tags.map((t,i)=>`<span class="bd ${t}">${tl[i]}</span>`).join('') }
+
+function buildRARow(item){
+  const col = ic(item.impact);
+  const tags = item.tags||['bd-article','bd-capital'];
+  const tl   = item.tl  ||[item.ttype||'ARTICLE','CAPITAL'];
+  return `<div class="entry" id="rae-${item.id}"
+    data-sec="${item.section||'article'}" data-dir="${item.dir||'n/a'}" data-ag="${item.agency||'n/a'}" data-warn="${item.warn||false}"
+    data-text="${(item.title+' '+(item.source||'')+' '+(item.author||'')+' '+(item.summary||'')).toLowerCase().replace(/<[^>]+>/g,' ')}"
+    style="border-left-color:${item.color}">
+    <div class="entry-line" onclick="raToggle('${item.id}')">
+      <div class="e-idx">${item.id}</div>
+      <div class="e-dir">${dirArr(item.dir||'n/a')}</div>
+      <div class="e-main">
+        <div class="e-title">${item.title}</div>
+        <div class="e-meta">${item.source||''}</div>
+      </div>
+      <div class="e-badges">${bdgs(tags,tl)}</div>
+      <div class="e-impact">
+        <div class="imp-track"><div class="imp-fill" style="width:${item.impact}%;background:${col}"></div></div>
+        <span class="imp-lbl" style="color:${col}">${item.il}</span>
+      </div>
+      <div class="e-toggle" id="rat-${item.id}">›</div>
+    </div>
+    <div class="e-expand" id="rax-${item.id}">
+      <div class="e-summary">${item.summary||''}</div>
+      <div class="e-foot">
+        <a class="e-link" href="${item.url||'#'}" target="_blank" rel="noreferrer">↗ Read source</a>
+        ${item.warn?'<span class="e-warn-badge">⚠ CRASH WARNING</span>':''}
+        ${item.author?`<span class="e-author">Author: ${item.author}</span>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function raToggle(id){
+  document.getElementById('rax-'+id).classList.toggle('show');
+  document.getElementById('rat-'+id).classList.toggle('open');
+}
+
+function renderRA() {
+  // Build article items with correct section/dir for filtering
+  const artItems = ARTICLES.map(a=>({...a, section:'article', dir:'n/a', agency:'n/a',
+    tags:a.type==='article'?['bd-article','bd-capital']:['bd-commentary','bd-capital'],
+    tl:a.type==='article'?[a.ttype||'ARTICLE','CAPITAL']:[a.ttype||'COMMENTARY','CAPITAL'] }));
+  document.getElementById('ralist-article').innerHTML = artItems.sort((a,b)=>b.impact-a.impact).map(buildRARow).join('');
+
+  // NPR section with agency dividers
+  const html = [];
+  [['occ','OCC — Office of the Comptroller of the Currency','rgba(126,184,181,.35)','var(--teal)','rgba(126,184,181,.05)','National Banks &amp; Federal Savings Associations'],
+   ['fed','FRB — Federal Reserve Board','rgba(139,159,206,.35)','var(--purple)','rgba(139,159,206,.05)','Bank Holding Companies · State Member Banks · Capital Framework Author'],
+   ['fdic','FDIC — Federal Deposit Insurance Corporation','rgba(158,184,126,.35)','var(--grn)','rgba(158,184,126,.05)','State Non-Member Banks · Savings Associations · Failed Bank Resolution'],
+  ].forEach(([ag,lbl,bc,tc,bg,desc])=>{
+    html.push(`<div class="agency-divider" id="radiv-${ag}"><span class="adiv-badge" style="border-color:${bc};color:${tc};background:${bg}">${lbl}</span><div class="adiv-line"></div><span class="adiv-desc">${desc}</span></div>`);
+    html.push(`<div class="row-list" id="ragrp-${ag}">`);
+    NPRS.filter(n=>n.agency===ag).forEach(n=>html.push(buildRARow(n)));
+    html.push('</div>');
+  });
+  document.getElementById('ralist-npr').innerHTML = html.join('');
+  applyRAFilter();
+}
+
+function applyRAFilter(){
+  const all = [...ARTICLES.map(a=>({...a,section:'article',dir:'n/a',agency:'n/a'})),...NPRS];
+  let count=0, artVis=false, nprVis=false;
+  all.forEach(item=>{
+    const el = document.getElementById('rae-'+item.id);
+    if(!el) return;
+    let show=true;
+    if(raActiveSec!=='all' && item.section!==raActiveSec) show=false;
+    if(show && raActiveDir!=='all'){ if(item.dir==='n/a') show=false; else if(item.dir!==raActiveDir) show=false; }
+    if(show && raActiveAg!=='all'){ if(item.agency==='n/a'){ if(raActiveSec==='npr') show=false; } else if(item.agency!==raActiveAg) show=false; }
+    if(show && raWarnOnly && !item.warn) show=false;
+    if(show && raSearch && !(el.dataset.text||'').includes(raSearch)) show=false;
+    el.classList.toggle('hidden',!show);
+    if(show){ count++; if(item.section==='article') artVis=true; if(item.section==='npr') nprVis=true; }
+  });
+  document.getElementById('ra-rc').textContent = count+' item'+(count!==1?'s':'');
+  document.getElementById('ra-empty').style.display = count===0?'block':'none';
+  ['article','npr'].forEach(s=>{
+    const vis = s==='article'?artVis:nprVis;
+    ['rahdr-','radesc-','rarule-'].forEach(p=>{const e=document.getElementById(p+s);if(e)e.style.display=vis?'':'none';});
+  });
+  ['occ','fed','fdic'].forEach(ag=>{
+    const grp=document.getElementById('ragrp-'+ag); const div=document.getElementById('radiv-'+ag);
+    if(!grp) return;
+    const any=grp.querySelectorAll('.entry:not(.hidden)').length>0;
+    if(grp) grp.style.display=any?'':'none';
+    if(div) div.style.display=any?'':'none';
+  });
+}
+
+function raFSec(v,btn){ raActiveSec=v; document.querySelectorAll('#ras-all,#ras-art,#ras-npr').forEach(b=>b.classList.remove('sec-on')); btn.classList.add('sec-on'); applyRAFilter(); }
+function raFDir(v,btn){ raActiveDir=v; document.querySelectorAll('#rad-all,#rad-add,#rad-dreg').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); applyRAFilter(); }
+function raFAg(v,btn){ raActiveAg=v; document.querySelectorAll('#raa-all,#raa-occ,#raa-fed,#raa-fdic').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); applyRAFilter(); }
+function raFWarn(btn){ raWarnOnly=!raWarnOnly; btn.classList.toggle('on',raWarnOnly); applyRAFilter(); }
+function raFSearch(v){ raSearch=v.trim().toLowerCase(); applyRAFilter(); }
+
+/* ════════ INIT ════════ */
+renderNews();
+renderRA();
+
+
+/* ══ TIMELINE DATA — module-level ══ */
+Chart.defaults.font.family="'Helvetica Neue',Helvetica,Arial,sans-serif";Chart.defaults.font.size=10;Chart.defaults.color='#697386';
+
+const TL_YRS=[1913,1920,1929,1933,1935,1940,1945,1950,1955,1960,1965,1970,1975,1980,1982,1984,1989,1991,1994,1996,1999,2002,2004,2006,2008,2010,2012,2015,2016,2018,2019,2020,2021,2022,2023,2024,2025,2026];
+const TL_BRI=[5,-5,-22,42,48,52,55,56,54,52,50,44,38,20,8,-8,25,38,34,28,10,20,12,6,-15,62,68,78,82,55,42,45,50,58,72,68,35,28];
+
+const TL_CRISES=[{y:1929,l:'Great Crash'},{y:1989,l:'S&L Crisis'},{y:2000,l:'Dot-com Bust'},{y:2008,l:'Financial Crisis'},{y:2023,l:'SVB / Signature'}];
+const TL_LEGIS=[
+  {y:1913,l:'Fed Created',d:1},{y:1933,l:'Glass-Steagall',d:1},{y:1970,l:'BHC Amendments',d:-1},
+  {y:1980,l:'DIDMCA',d:-1},{y:1982,l:'Garn–St. Germain',d:-1},{y:1989,l:'FIRREA',d:1},
+  {y:1991,l:'FDICIA',d:1},{y:1999,l:'Gramm-Leach-Bliley',d:-1},{y:2002,l:'Sarbanes-Oxley',d:1},
+  {y:2010,l:'Dodd-Frank',d:1},{y:2015,l:'Basel III Peak',d:1},{y:2018,l:'EGRRCPA',d:-1},
+  {y:2023,l:'Basel III NPR',d:1},{y:2025,l:'eSLR / Basel Withdrawn',d:-1},
+];
+const TL_STEPS=[
+  {y:1913,l:'Federal Reserve Act',b:5,d:'up'},{y:1929,l:'CRISIS: Great Crash',b:-10,d:'crisis'},
+  {y:1933,l:'Glass-Steagall + FDIC',b:42,d:'up'},{y:1935,l:'Banking Act 1935',b:50,d:'up'},
+  {y:1956,l:'BHC Act',b:55,d:'up'},{y:1970,l:'BHC Amendments',b:47,d:'down'},
+  {y:1978,l:'DIDMCA begins',b:40,d:'down'},{y:1980,l:'DIDMCA (rate dereg)',b:28,d:'down'},
+  {y:1982,l:'Garn–St. Germain',b:14,d:'down'},{y:1986,l:'Tax Reform Act',b:8,d:'down'},
+  {y:1989,l:'CRISIS: S&L | FIRREA',b:30,d:'crisis'},{y:1991,l:'FDICIA',b:44,d:'up'},
+  {y:1994,l:'Riegle-Neal',b:38,d:'down'},{y:1996,l:'Fed reinterprets G-S',b:30,d:'down'},
+  {y:1999,l:'Gramm-Leach-Bliley',b:16,d:'down'},{y:2000,l:'CRISIS: Dot-com | CFMA',b:10,d:'crisis'},
+  {y:2002,l:'Sarbanes-Oxley',b:22,d:'up'},{y:2004,l:'SEC leverage ease',b:12,d:'down'},
+  {y:2007,l:'Basel II',b:8,d:'down'},{y:2008,l:'CRISIS: Financial Crisis',b:-8,d:'crisis'},
+  {y:2010,l:'Dodd-Frank Act',b:55,d:'up'},{y:2011,l:'Volcker Rule',b:62,d:'up'},
+  {y:2013,l:'Leveraged lending guidance',b:66,d:'up'},{y:2015,l:'LCR final rule',b:74,d:'up'},
+  {y:2016,l:'Basel III peak',b:80,d:'up'},{y:2018,l:'EGRRCPA rollback',b:60,d:'down'},
+  {y:2019,l:'Tailoring rules',b:46,d:'down'},{y:2020,l:'COVID SLR exclusion',b:42,d:'down'},
+  {y:2021,l:'Biden era starts',b:48,d:'up'},{y:2023,l:'CRISIS: SVB | Basel III NPR',b:72,d:'crisis'},
+  {y:2024,l:'LTD NPR / CRA final',b:68,d:'up'},{y:2025,l:'eSLR final | Basel withdrawn',b:38,d:'down'},
+  {y:2026,l:'Basel III reproposal (est.)',b:32,d:'down'},
+];
+const TL_ERAS=[
+  {l:'1913–1928',n:'Pre-Depression',net:+5,dur:15,t:'mixed'},
+  {l:'1929–1945',n:'New Deal Build',net:+64,dur:16,t:'reg'},
+  {l:'1945–1970',n:'Regulated Stability',net:-6,dur:25,t:'mixed'},
+  {l:'1970–1988',n:'Deregulatory Wave I',net:-47,dur:18,t:'dereg'},
+  {l:'1989–1999',n:'Post-S&L Rebuild',net:-28,dur:10,t:'mixed'},
+  {l:'1999–2009',n:'Deregulatory Wave II',net:-27,dur:10,t:'dereg'},
+  {l:'2009–2016',n:'Dodd-Frank Build',net:+87,dur:7,t:'reg'},
+  {l:'2016–2020',n:'Trump 1.0 Rollback',net:-37,dur:4,t:'dereg'},
+  {l:'2020–2023',n:'Biden / SVB Surge',net:+30,dur:3,t:'reg'},
+  {l:'2023–2026',n:'Trump 2.0 Rollback',net:-44,dur:3,t:'dereg'},
+];
+let tl_c1, tl_c3;
+
+/* ══ TIMELINE LAZY INIT ══ */
+function initTimeline() {
+
+
+// Event ticker
+(function(){
+  const all=[...TL_CRISES.map(c=>({y:c.y,l:c.l,t:'crisis'})),...TL_LEGIS.map(l=>({y:l.y,l:l.l,t:l.d===1?'up':'down'}))].sort((a,b)=>a.y-b.y);
+  const tk=document.getElementById('ev-ticker');
+  all.forEach(e=>{
+    const col=e.t==='crisis'?'#d04838':e.t==='up'?'#7eb8b5':'#c9a84c';
+    tk.innerHTML+=`<div class="ev-chip" style="border-left-color:${col}"><span class="ev-yr" style="color:${col}">${e.y}</span><span class="ev-lb">${e.l}</span></div>`;
+  });
+})();
+
+// Era chips
+(function(){
+  const w=document.getElementById('era-chips');
+  TL_ERAS.forEach(e=>{
+    const bc=e.t==='reg'?'rgba(126,184,181,.35)':e.t==='dereg'?'rgba(208,72,56,.35)':'rgba(201,168,76,.35)';
+    const tc=e.t==='reg'?'#7eb8b5':e.t==='dereg'?'#d04838':'#c9a84c';
+    w.innerHTML+=`<span class="era-chip" style="border-color:${bc};color:${tc};background:${bc.replace('.35','.07')}">${e.l} · ${e.n} · Net ${e.net>=0?'+':''}${e.net}</span>`;
+  });
+})();
+
+// ── V1: Smooth line ──
+function v1set(mode,btn){
+  document.querySelectorAll('#v1a,#v1d,#v1r,#v1c').forEach(b=>b.classList.remove('on'));btn.classList.add('on');buildV1(mode);
+}
+function buildV1(mode='all'){
+  if(tl_c1)tl_c1.destroy();
+  const ptR=TL_YRS.map(y=>TL_CRISES.find(c=>c.y===y)?8:TL_LEGIS.find(l=>l.y===y)?5:0);
+  const ptBg=TL_YRS.map(y=>TL_CRISES.find(c=>c.y===y)?'#d04838':'#7eb8b5');
+  const ptBrd=TL_YRS.map(y=>TL_CRISES.find(c=>c.y===y)?'rgba(255,100,80,0.8)':'rgba(126,184,181,0.6)');
+  tl_c1=new Chart(document.getElementById('cv1'),{
+    type:'line',
+    data:{labels:TL_YRS,datasets:[
+      {label:'BRI',data:TL_BRI,borderColor:'rgba(126,184,181,.85)',borderWidth:2.5,
+       pointRadius:ptR,pointBackgroundColor:ptBg,pointBorderColor:ptBrd,pointBorderWidth:2,
+       tension:0.4,fill:{target:{value:0},above:'rgba(0,136,178,.12)',below:'rgba(192,57,43,.10)'}},
+      {label:'Zero',data:TL_YRS.map(()=>0),borderColor:'rgba(255,255,255,.08)',borderWidth:1,borderDash:[5,5],pointRadius:0,fill:false}
+    ]},
+    options:{responsive:true,interaction:{mode:'index',intersect:false},
+      scales:{
+        x:{type:'linear',min:1910,max:2028,grid:{color:'rgba(39,43,51,.8)'},ticks:{color:'#9EA8B3',callback:v=>Number.isInteger(v)?v:'',maxTicksLimit:14},title:{display:true,text:'Year',color:'#9EA8B3',font:{size:9}}},
+        y:{grid:{color:'rgba(39,43,51,.6)'},ticks:{color:'#9EA8B3',callback:v=>v>=0?'+'+v:v},title:{display:true,text:'BRI Index (0 = historical mean)',color:'#9EA8B3',font:{size:9}}}
+      },
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#FFFFFF',borderColor:'#D8DCE6',borderWidth:1,
+        callbacks:{title:i=>i[0].label,
+          label:i=>{const v=i.parsed.y;return ` BRI: ${v>=0?'+':''}${v} — ${v>60?'Supercycle peak':v>40?'Above avg (tightening)':v>15?'Moderate regulation':v>0?'Slightly above baseline':'Below baseline (deregulatory)'}`;},
+          afterLabel:i=>{const cr=TL_CRISES.find(c=>c.y==i.label);const lg=TL_LEGIS.find(l=>l.y==i.label);return cr?`⚠ ${cr.l}`:lg?`◆ ${lg.l}`:null;}
+        }
+      }}
+    }
+  });
+}
+buildV1();
+
+// ── V2: Era bars ──
+(function(){
+  const labels=TL_ERAS.map(e=>e.n);
+  const data=TL_ERAS.map(e=>e.net);
+  const bkgd=TL_ERAS.map(e=>e.t==='reg'?'rgba(126,184,181,.72)':e.t==='dereg'?'rgba(208,72,56,.75)':'rgba(201,168,76,.6)');
+  const bdr=TL_ERAS.map(e=>e.t==='reg'?'#7eb8b5':e.t==='dereg'?'#d04838':'#c9a84c');
+  new Chart(document.getElementById('cv2'),{
+    type:'bar',
+    data:{labels,datasets:[{label:'Net BRI Change',data,backgroundColor:bkgd,borderColor:bdr,borderWidth:1.5,borderRadius:3}]},
+    options:{responsive:true,interaction:{mode:'index',intersect:false},
+      scales:{
+        x:{grid:{color:'rgba(39,43,51,.6)'},ticks:{color:'#9EA8B3',maxRotation:28,font:{size:8}}},
+        y:{grid:{color:'rgba(39,43,51,.6)'},ticks:{color:'#9EA8B3',callback:v=>v>=0?'+'+v:v},title:{display:true,text:'Net BRI change during era',color:'#9EA8B3',font:{size:9}}}
+      },
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#FFFFFF',borderColor:'#D8DCE6',borderWidth:1,
+        callbacks:{label:i=>`Net change: ${i.parsed.y>=0?'+':''}${i.parsed.y} BRI points`,
+          afterLabel:i=>{const e=TL_ERAS[i.dataIndex];return `Duration: ${e.dur} years · Pace: ${(Math.abs(e.net)/e.dur).toFixed(1)} pts/yr`;}
+        }
+      }}
+    }
+  });
+})();
+
+// ── V3: Step chart ──
+function v3set(mode,btn){document.querySelectorAll('#v3f,#v3p,#v3r').forEach(b=>b.classList.remove('on'));btn.classList.add('on');buildV3(mode);}
+function buildV3(zoom='full'){
+  if(tl_c3)tl_c3.destroy();
+  const filtered=TL_STEPS.filter(s=>zoom==='post80'?s.y>=1978:zoom==='post08'?s.y>=2007:true);
+  const labels=filtered.map(s=>s.y);
+  const vals=filtered.map(s=>s.b);
+  const ptR=filtered.map(s=>s.d==='crisis'?9:4);
+  const ptBg=filtered.map(s=>s.d==='crisis'?'#d04838':s.d==='up'?'rgba(126,184,181,.8)':'rgba(201,168,76,.8)');
+  const ptBrd=filtered.map(s=>s.d==='crisis'?'rgba(255,100,80,.8)':s.d==='up'?'#7eb8b5':'#c9a84c');
+  tl_c3=new Chart(document.getElementById('cv3'),{
+    type:'line',
+    data:{labels,datasets:[
+      {label:'BRI',data:vals,
+        segment:{borderColor:ctx=>{const i=ctx.p1DataIndex;if(!filtered[i])return '#8b9fce';return filtered[i].d==='up'?'rgba(126,184,181,.85)':filtered[i].d==='down'?'rgba(201,168,76,.85)':'rgba(208,72,56,.7)';}},
+        borderWidth:2.5,stepped:'before',
+        pointRadius:ptR,pointBackgroundColor:ptBg,pointBorderColor:ptBrd,pointBorderWidth:2,
+        fill:{target:{value:0},above:'rgba(0,111,207,.08)',below:'rgba(181,150,90,.06)'}},
+      {label:'Zero',data:labels.map(()=>0),borderColor:'rgba(255,255,255,.07)',borderWidth:1,borderDash:[4,4],pointRadius:0,fill:false}
+    ]},
+    options:{responsive:true,interaction:{mode:'index',intersect:false},
+      scales:{
+        x:{type:'linear',grid:{color:'rgba(39,43,51,.7)'},ticks:{color:'#9EA8B3',callback:v=>Number.isInteger(v)?v:'',maxTicksLimit:20},title:{display:true,text:'Year',color:'#9EA8B3',font:{size:9}}},
+        y:{grid:{color:'rgba(39,43,51,.6)'},ticks:{color:'#9EA8B3',callback:v=>v>=0?'+'+v:v},title:{display:true,text:'Cumulative BRI (0 = baseline)',color:'#9EA8B3',font:{size:9}}}
+      },
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#FFFFFF',borderColor:'#D8DCE6',borderWidth:1,
+        callbacks:{title:i=>i[0].label,
+          label:i=>{const s=filtered[i.dataIndex];return s?`${s.l} · BRI: ${s.b>=0?'+':''}${s.b}`:`BRI: ${i.parsed.y}`;},
+          afterLabel:i=>{const s=filtered[i.dataIndex];return s?.d==='crisis'?'⚠ BANKING CRISIS':s?.d==='up'?'↑ Regulatory increase':'↓ Deregulatory action';}
+        }
+      }}
+    }
+  });
+}
+buildV3();
+
+// ── V4: Circular ──
+(function(){
+  const canvas=document.getElementById('cv4');
+  const dpr=window.devicePixelRatio||1;
+  const S=660;
+  canvas.width=S*dpr;canvas.height=S*dpr;
+  canvas.style.width=S+'px';canvas.style.height=S+'px';
+  const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);
+  const cx=S/2,cy=S/2,maxR=270,minR=55;
+
+  function toXY(a,r){return{x:cx+r*Math.cos(a),y:cy+r*Math.sin(a)};}
+  function bri2r(f){return minR+f*(maxR-minR);}
+
+  // Background circle
+  ctx.fillStyle='#111318';ctx.beginPath();ctx.arc(cx,cy,maxR+22,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#272b33';ctx.lineWidth=0.5;ctx.beginPath();ctx.arc(cx,cy,maxR+22,0,Math.PI*2);ctx.stroke();
+
+  // Reference rings
+  [0.25,0.5,0.75,1.0].forEach(f=>{
+    const r=bri2r(f);
+    ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.strokeStyle=f===1.0?'rgba(39,43,51,1)':'rgba(39,43,51,0.8)';ctx.lineWidth=f===1.0?1:0.5;ctx.stroke();
+    ctx.fillStyle='rgba(74,80,94,.55)';ctx.font='500 9px "IBM Plex Mono",monospace';ctx.textAlign='left';
+    ctx.fillText('BRI '+Math.round(f*100),cx+r+4,cy-3);
+  });
+
+  // Axis lines
+  [[cx,cy-maxR-14,cx,cy+maxR+14],[cx-maxR-14,cy,cx+maxR+14,cy]].forEach(([x1,y1,x2,y2])=>{
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.strokeStyle='rgba(39,43,51,.8)';ctx.lineWidth=0.5;ctx.stroke();
+  });
+
+  // Phase wedge fills
+  const wc=['rgba(126,184,181,.04)','rgba(201,168,76,.04)','rgba(208,72,56,.06)','rgba(139,159,206,.05)'];
+  wc.forEach((c,i)=>{
+    const a0=-Math.PI/2+i*(Math.PI/2);
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,maxR,a0,a0+Math.PI/2);ctx.closePath();
+    ctx.fillStyle=c;ctx.fill();
+  });
+
+  // Phase labels
+  const PHASES=[
+    {a:-Math.PI/4,l:'REGULATORY\nPEAK',s:'Post-crisis tightening',c:'rgba(126,184,181,.85)'},
+    {a:Math.PI/4, l:'REGULATORY\nEROSION',s:'Gradual deregulation',  c:'rgba(201,168,76,.8)'},
+    {a:3*Math.PI/4,l:'DEREGULATORY\nTROUGH',s:'Min reg / max risk', c:'rgba(208,72,56,.85)'},
+    {a:5*Math.PI/4,l:'CRISIS &\nRE-REGULATION',s:'Crash → legislation',c:'rgba(139,159,206,.85)'},
+  ];
+  PHASES.forEach(p=>{
+    const lr=maxR+42;
+    const lx=cx+lr*Math.cos(p.a);const ly=cy+lr*Math.sin(p.a);
+    ctx.save();ctx.textAlign='center';ctx.fillStyle=p.c;
+    ctx.font='700 9px "IBM Plex Mono",monospace';
+    p.l.split('\n').forEach((ln,i)=>ctx.fillText(ln,lx,ly+i*12-(p.l.split('\n').length-1)*6));
+    ctx.fillStyle='rgba(122,128,144,.55)';ctx.font='400 8px "IBM Plex Mono",monospace';
+    ctx.fillText(p.s,lx,ly+p.l.split('\n').length*12-(p.l.split('\n').length-1)*6+2);
+    ctx.restore();
+  });
+
+  // Cycles
+  const CYCLES=[
+    {n:'1929–1945',c:'rgba(126,184,181,.7)',f:'rgba(126,184,181,.08)',dash:[],w:1.6,
+     pts:[{a:-Math.PI/2,r:.86},{a:-Math.PI/4,r:.90},{a:0,r:.82},{a:Math.PI/4,r:.70},{a:Math.PI/2,r:.55},{a:3*Math.PI/4,r:.20},{a:Math.PI,r:.55},{a:5*Math.PI/4,r:.76},{a:3*Math.PI/2,r:.86}]},
+    {n:'1945–1989',c:'rgba(158,184,126,.7)',f:'rgba(158,184,126,.08)',dash:[],w:1.6,
+     pts:[{a:-Math.PI/2,r:.82},{a:-Math.PI/4,r:.78},{a:0,r:.68},{a:Math.PI/4,r:.52},{a:Math.PI/2,r:.28},{a:3*Math.PI/4,r:.16},{a:Math.PI,r:.52},{a:5*Math.PI/4,r:.72},{a:3*Math.PI/2,r:.80}]},
+    {n:'1989–2010',c:'rgba(139,159,206,.7)',f:'rgba(139,159,206,.08)',dash:[],w:1.6,
+     pts:[{a:-Math.PI/2,r:.78},{a:-Math.PI/4,r:.65},{a:0,r:.50},{a:Math.PI/4,r:.35},{a:Math.PI/2,r:.10},{a:3*Math.PI/4,r:.04},{a:Math.PI,r:.60},{a:5*Math.PI/4,r:.79},{a:3*Math.PI/2,r:.86}]},
+    {n:'2010–2023',c:'rgba(200,126,58,.7)',f:'rgba(200,126,58,.08)',dash:[],w:1.6,
+     pts:[{a:-Math.PI/2,r:.95},{a:-Math.PI/4,r:.80},{a:0,r:.60},{a:Math.PI/4,r:.42},{a:Math.PI/2,r:.35},{a:3*Math.PI/4,r:.24},{a:Math.PI,r:.72},{a:5*Math.PI/4,r:.86},{a:3*Math.PI/2,r:.93}]},
+    {n:'2023–present',c:'rgba(201,168,76,.92)',f:'rgba(201,168,76,.1)',dash:[7,3],w:2.5,
+     pts:[{a:-Math.PI/2,r:.88},{a:-Math.PI/6,r:.70},{a:0,r:.45},{a:Math.PI/4,r:.30}]},
+  ];
+
+  CYCLES.forEach((cyc,ci)=>{
+    if(cyc.pts.length<2)return;
+    // Fill
+    ctx.beginPath();
+    cyc.pts.forEach((p,i)=>{const{x,y}=toXY(p.a,bri2r(p.r));i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+    ctx.closePath();ctx.fillStyle=cyc.f;ctx.fill();
+    // Line
+    ctx.beginPath();
+    cyc.pts.forEach((p,i)=>{const{x,y}=toXY(p.a,bri2r(p.r));i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+    if(cyc.pts.length>=4){}  // open arc for current cycle
+    ctx.strokeStyle=cyc.c;ctx.lineWidth=cyc.w;ctx.setLineDash(cyc.dash);ctx.stroke();ctx.setLineDash([]);
+    // Points
+    cyc.pts.forEach(p=>{
+      const{x,y}=toXY(p.a,bri2r(p.r));
+      ctx.beginPath();ctx.arc(x,y,ci===4?5:3.5,0,Math.PI*2);ctx.fillStyle=cyc.c;ctx.fill();
+    });
+  });
+
+  // Center
+  ctx.textAlign='center';ctx.fillStyle='rgba(201,168,76,.9)';ctx.font="900 11px 'IBM Plex Mono',monospace";ctx.fillText('THE CYCLE',cx,cy-7);
+  ctx.fillStyle='rgba(122,128,144,.6)';ctx.font="400 8.5px 'IBM Plex Mono',monospace";ctx.fillText('always returns',cx,cy+8);
+
+  // "We are here" marker
+  const cur=CYCLES[4].pts[CYCLES[4].pts.length-1];
+  const{x:wx,y:wy}=toXY(cur.a,bri2r(cur.r));
+  ctx.beginPath();ctx.arc(wx,wy,11,0,Math.PI*2);ctx.fillStyle='rgba(201,168,76,.15)';ctx.fill();
+  ctx.beginPath();ctx.arc(wx,wy,6,0,Math.PI*2);ctx.fillStyle='#c9a84c';ctx.fill();
+  ctx.fillStyle='#c9a84c';ctx.font="700 9px 'IBM Plex Mono',monospace";ctx.textAlign='left';
+  ctx.fillText('← WE ARE HERE (2025–26)',wx+12,wy+4);
+
+  // Direction arrow for current cycle
+  const last2=CYCLES[4].pts.slice(-2);
+  if(last2.length===2){
+    const p0=toXY(last2[0].a,bri2r(last2[0].r)),p1=toXY(last2[1].a,bri2r(last2[1].r));
+    const ang=Math.atan2(p1.y-p0.y,p1.x-p0.x);
+    ctx.save();ctx.strokeStyle='rgba(201,168,76,.6)';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(p0.x,p0.y);ctx.lineTo(p1.x,p1.y);ctx.stroke();
+    ctx.translate(p1.x,p1.y);ctx.rotate(ang);
+    ctx.fillStyle='rgba(201,168,76,.8)';ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(-10,-5);ctx.lineTo(-10,5);ctx.closePath();ctx.fill();
+    ctx.restore();
+  }
+})();
+
+}
+
+</script>
+</body>
+</html>
